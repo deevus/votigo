@@ -1,0 +1,37 @@
+{{define "content"}}
+<h1>Results: {{.Category.Name}}</h1>
+
+{{if .NotVisible}}
+<p>Results are not available yet. Check back after voting closes.</p>
+{{else}}
+
+<p>Total votes: {{.VoteCount}}</p>
+
+<table class="data">
+  <tr>
+    <th>Rank</th>
+    <th>Option</th>
+    {{if eq .Category.VoteType "ranked"}}
+    <th>Points</th>
+    <th>1st Place</th>
+    {{else}}
+    <th>Votes</th>
+    {{end}}
+  </tr>
+  {{range $i, $r := .Results}}
+  <tr>
+    <td>{{add $i 1}}</td>
+    <td>{{$r.Name}}</td>
+    {{if eq $.Category.VoteType "ranked"}}
+    <td>{{$r.Points}}</td>
+    <td>{{$r.FirstPlace}}</td>
+    {{else}}
+    <td>{{$r.Votes}}</td>
+    {{end}}
+  </tr>
+  {{end}}
+</table>
+{{end}}
+
+<p><a href="/">Back to home</a></p>
+{{end}}

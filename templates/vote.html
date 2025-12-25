@@ -1,0 +1,58 @@
+{{define "content"}}
+<h1>{{.Category.Name}}</h1>
+
+{{if .Error}}
+<p class="error">{{.Error}}</p>
+{{end}}
+
+{{if .Success}}
+<p class="success">{{.Success}}</p>
+<p><a href="/">Back to home</a></p>
+{{else}}
+
+<form method="POST" action="/vote/{{.Category.ID}}">
+  <p>
+    <label for="nickname"><b>Your nickname:</b></label><br>
+    <input type="text" name="nickname" id="nickname" value="{{.Nickname}}" size="30">
+  </p>
+
+  {{if eq .Category.VoteType "single"}}
+  <p><b>Select one:</b></p>
+  {{range .Options}}
+  <p>
+    <input type="radio" name="choice" value="{{.ID}}" id="opt{{.ID}}">
+    <label for="opt{{.ID}}">{{.Name}}</label>
+  </p>
+  {{end}}
+
+  {{else if eq .Category.VoteType "approval"}}
+  <p><b>Select all that apply:</b></p>
+  {{range .Options}}
+  <p>
+    <input type="checkbox" name="choice" value="{{.ID}}" id="opt{{.ID}}">
+    <label for="opt{{.ID}}">{{.Name}}</label>
+  </p>
+  {{end}}
+
+  {{else if eq .Category.VoteType "ranked"}}
+  <p><b>Rank your top {{.MaxRank}} choices:</b></p>
+  {{range $i, $e := .Ranks}}
+  <p>
+    {{$rank := add $i 1}}
+    <label for="rank{{$rank}}">Choice #{{$rank}}:</label>
+    <select name="rank{{$rank}}" id="rank{{$rank}}">
+      <option value="">-- Select --</option>
+      {{range $.Options}}
+      <option value="{{.ID}}">{{.Name}}</option>
+      {{end}}
+    </select>
+  </p>
+  {{end}}
+  {{end}}
+
+  <p><input type="submit" value="Submit Vote" class="btn"></p>
+</form>
+
+<p><a href="/">Back to home</a></p>
+{{end}}
+{{end}}
