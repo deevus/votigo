@@ -1,0 +1,42 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>{{if .Title}}{{.Title}} - {{end}}Votigo</title>
+  <style type="text/css">
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      margin: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 20px;
+      border: 1px solid #ccc;
+    }
+    h1 { color: #333; margin-top: 0; }
+    table { border-collapse: collapse; width: 100%; }
+    td, th { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background: #eee; }
+    .btn {
+      padding: 8px 16px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .btn:hover { background: #45a049; }
+    .error { color: red; font-weight: bold; }
+    .success { color: green; font-weight: bold; }
+    a { color: #0066cc; }
+    input[type="text"] { padding: 8px; width: 200px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    {{template "content" .}}
+  </div>
+</body>
+</html>
