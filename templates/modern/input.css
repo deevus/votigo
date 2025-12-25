@@ -1,3 +1,179 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+/* Font faces */
+@font-face {
+  font-family: 'Press Start 2P';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/static/fonts/PressStart2P-Regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/static/fonts/IBMPlexMono-Regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/static/fonts/IBMPlexMono-Medium.woff2') format('woff2');
+}
+
+/* Extend theme */
+@theme {
+  --font-arcade: 'Press Start 2P', monospace;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  --color-arcade-green: #22c55e;
+  --color-arcade-amber: #f59e0b;
+  --color-arcade-red: #ef4444;
+  --color-arcade-dark: #0a0a0a;
+  --color-arcade-panel: #171717;
+  --color-arcade-border: #404040;
+}
+
+/* Glow effects */
+@utility glow-green {
+  text-shadow: 0 0 10px #22c55e, 0 0 20px rgba(34, 197, 94, 0.25);
+}
+
+@utility glow-amber {
+  text-shadow: 0 0 10px #f59e0b, 0 0 20px rgba(245, 158, 11, 0.25);
+}
+
+/* Arcade panel border */
+@utility arcade-border {
+  border: 2px solid #404040;
+  box-shadow:
+    inset 0 0 0 1px #262626,
+    0 0 0 1px #171717,
+    0 4px 0 0 #171717;
+  border-radius: 8px;
+}
+
+/* Button press effect */
+@utility btn-arcade {
+  transition: all 0.1s ease;
+  &:active {
+    transform: translateY(2px);
+    box-shadow: none !important;
+  }
+}
+
+/* CRT scanlines overlay */
+@utility scanlines {
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.1) 2px,
+    rgba(0, 0, 0, 0.1) 4px
+  );
+  pointer-events: none;
+}
+
+/* Form inputs arcade style */
+@utility input-arcade {
+  width: 100%;
+  background-color: oklch(0.145 0 0);
+  border: 1px solid oklch(0.371 0 0);
+  border-radius: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  color: oklch(0.922 0 0);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  &::placeholder {
+    color: oklch(0.269 0 0);
+  }
+  &:focus {
+    border-color: #22c55e;
+    outline: none;
+    box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.5);
+  }
+}
+
+/* Select dropdown arcade style */
+@utility select-arcade {
+  width: 100%;
+  background-color: oklch(0.145 0 0);
+  border: 1px solid oklch(0.371 0 0);
+  border-radius: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  padding-right: 2rem;
+  color: oklch(0.708 0 0);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2322c55e'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1rem;
+  &:focus {
+    border-color: #22c55e;
+    outline: none;
+  }
+}
+
+/* Status badges */
+@utility badge-draft {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  border-radius: 0.25rem;
+  background-color: rgba(64, 64, 64, 0.5);
+  color: oklch(0.556 0 0);
+  border: 1px solid oklch(0.371 0 0);
+}
+
+@utility badge-open {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  border-radius: 0.25rem;
+  background-color: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+@utility badge-closed {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  border-radius: 0.25rem;
+  background-color: rgba(239, 68, 68, 0.1);
+  color: oklch(0.637 0.182 25.331);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+@utility badge-archived {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  border-radius: 0.25rem;
+  background-color: rgba(38, 38, 38, 0.5);
+  color: oklch(0.450 0 0);
+  border: 1px solid oklch(0.371 0 0);
+}
+
+@utility badge-live {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  border-radius: 0.25rem;
+  background-color: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+/* Custom checkbox/radio accent color */
+input[type="radio"],
+input[type="checkbox"] {
+  accent-color: #22c55e;
+}
