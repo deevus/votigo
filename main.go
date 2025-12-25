@@ -7,12 +7,13 @@ import (
 
 func main() {
 	var cli cmd.CLI
+	cmdCtx := &cmd.Context{}
 	ctx := kong.Parse(&cli,
 		kong.Name("votigo"),
 		kong.Description("Voting app for Palm's Arcade Retro LAN"),
 		kong.UsageOnError(),
-		kong.Bind(&cmd.Context{}),
+		kong.Bind(cmdCtx),
 	)
-	err := ctx.Run(&cmd.Context{})
+	err := ctx.Run(cmdCtx)
 	ctx.FatalIfErrorf(err)
 }
