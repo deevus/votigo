@@ -10,6 +10,15 @@ import (
 	"database/sql"
 )
 
+const archiveCategory = `-- name: ArchiveCategory :exec
+UPDATE categories SET status = 'archived' WHERE id = ?
+`
+
+func (q *Queries) ArchiveCategory(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, archiveCategory, id)
+	return err
+}
+
 const countOptionsByCategory = `-- name: CountOptionsByCategory :one
 SELECT COUNT(*) FROM options WHERE category_id = ?
 `
@@ -202,6 +211,79 @@ SELECT id, name, vote_type, status, show_results, max_rank, created_at FROM cate
 
 func (q *Queries) ListCategories(ctx context.Context) ([]Category, error) {
 	rows, err := q.db.QueryContext(ctx, listCategories)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Category{}
+	for rows.Next() {
+		var i Category
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.VoteType,
+			&i.Status,
+			&i.ShowResults,
+			&i.MaxRank,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listCategoriesExcludeArchived = `-- name: ListCategoriesExcludeArchived :many
+SELECT id, name, vote_type, status, show_results, max_rank, created_at FROM categories WHERE status != 'archived' ORDER BY id
+`
+
+func (q *Queries) ListCategoriesExcludeArchived(ctx context.Context) ([]Category, error) {
+	rows, err := q.db.QueryContext(ctx, listCategoriesExcludeArchived)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Category{}
+	for rows.Next() {
+		var i Category
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.VoteType,
+			&i.Status,
+			&i.ShowResults,
+			&i.MaxRank,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listCategoriesWithResults = `-- name: ListCategoriesWithResults :many
+SELECT id, name, vote_type, status, show_results, max_rank, created_at FROM categories
+WHERE (show_results = 'live' AND status = 'open')
+   OR (show_results = 'after_close' AND status = 'closed')
+ORDER BY id
+`
+
+func (q *Queries) ListCategoriesWithResults(ctx context.Context) ([]Category, error) {
+	rows, err := q.db.QueryContext(ctx, listCategoriesWithResults)
 	if err != nil {
 		return nil, err
 	}

@@ -1,9 +1,1 @@
-<div id="option-{{.ID}}" class="flex items-center justify-between p-3 border rounded-lg">
-    <span>{{.Name}}</span>
-    <button hx-delete="/admin/option/{{.ID}}"
-            hx-target="#option-{{.ID}}"
-            hx-swap="outerHTML"
-            class="px-2 py-1 text-sm text-red-600 hover:bg-red-50 rounded">
-        Delete
-    </button>
-</div>
+{{template "option-row-content" .}}

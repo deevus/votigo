@@ -1,70 +1,99 @@
 {{define "content"}}
-<div class="bg-white rounded-lg shadow p-6">
-    <div class="flex items-center justify-between mb-6">
-        <h1 class="text-2xl font-bold text-gray-800">Admin Dashboard</h1>
+<div class="space-y-8">
+    <!-- Header -->
+    <header class="flex items-center justify-between">
+        <div>
+            <h1 class="font-arcade text-lg text-arcade-green glow-green">
+                ADMIN
+            </h1>
+            <p class="text-neutral-500 text-sm mt-1">Manage voting categories</p>
+        </div>
         <a href="/admin/category/new"
-           class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+           class="bg-arcade-green hover:bg-green-400 text-arcade-dark px-4 py-2 rounded text-sm font-medium transition-colors btn-arcade">
             + New Category
         </a>
-    </div>
+    </header>
 
     {{if .Categories}}
-    <table class="w-full">
-        <thead>
-            <tr class="border-b">
-                <th class="text-left py-3 px-2 text-gray-600">ID</th>
-                <th class="text-left py-3 px-2 text-gray-600">Name</th>
-                <th class="text-left py-3 px-2 text-gray-600">Type</th>
-                <th class="text-left py-3 px-2 text-gray-600">Status</th>
-                <th class="text-left py-3 px-2 text-gray-600">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {{range .Categories}}
-            <tr class="border-b hover:bg-gray-50">
-                <td class="py-3 px-2">{{.ID}}</td>
-                <td class="py-3 px-2">
-                    <a href="/admin/category/{{.ID}}" class="text-blue-600 hover:underline">{{.Name}}</a>
-                </td>
-                <td class="py-3 px-2">{{.VoteType}}</td>
-                <td class="py-3 px-2" id="status-{{.ID}}">
-                    {{template "status-badge-inner" .}}
-                </td>
-                <td class="py-3 px-2">
-                    <a href="/results/{{.ID}}" class="text-blue-600 hover:underline">Results</a>
-                </td>
-            </tr>
-            {{end}}
-        </tbody>
-    </table>
+    <!-- Categories table -->
+    <div class="arcade-border bg-arcade-panel overflow-hidden">
+        <table class="w-full">
+            <thead>
+                <tr class="border-b border-arcade-border text-xs text-neutral-500 uppercase tracking-wide">
+                    <th class="text-left p-4 w-12">ID</th>
+                    <th class="text-left p-4">Name</th>
+                    <th class="text-left p-4">Type</th>
+                    <th class="text-center p-4">Status</th>
+                    <th class="text-right p-4">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Categories}}
+                <tr class="border-b border-arcade-border/50 last:border-0 hover:bg-neutral-800/30">
+                    <td class="p-4 text-neutral-500 text-sm">{{.ID}}</td>
+                    <td class="p-4">
+                        <a href="/admin/category/{{.ID}}"
+                           class="text-neutral-200 hover:text-arcade-green transition-colors">
+                            {{.Name}}
+                        </a>
+                    </td>
+                    <td class="p-4 text-neutral-500 text-sm capitalize">{{.VoteType}}</td>
+                    <td class="p-4 text-center" id="status-{{.ID}}">
+                        {{template "status-badge-content" .}}
+                    </td>
+                    <td class="p-4 text-right">
+                        <a href="/results/{{.ID}}"
+                           class="text-neutral-500 hover:text-neutral-300 text-xs transition-colors">
+                            Results
+                        </a>
+                    </td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+    </div>
     {{else}}
-    <p class="text-gray-500">No categories yet.</p>
+    <!-- Empty state -->
+    <div class="arcade-border bg-arcade-panel/50 p-8 text-center">
+        <div class="text-neutral-600 text-sm">
+            No categories yet
+        </div>
+        <div class="text-neutral-700 text-xs mt-2">
+            Create one to get started
+        </div>
+    </div>
     {{end}}
 </div>
 {{end}}
 
-{{define "status-badge-inner"}}
-{{if eq .Status "draft"}}
+{{define "status-badge-content"}}
 <span class="inline-flex items-center gap-2">
-    <span class="px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded">Draft</span>
+    {{if eq .Status "draft"}}
+    <span class="badge-draft">Draft</span>
     <button hx-post="/admin/category/{{.ID}}/open"
             hx-target="#status-{{.ID}}"
             hx-swap="innerHTML"
-            class="px-2 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700">
+            class="bg-arcade-green/20 hover:bg-arcade-green/30 text-arcade-green px-3 py-1 rounded text-xs transition-colors">
         Open
     </button>
-</span>
-{{else if eq .Status "open"}}
-<span class="inline-flex items-center gap-2">
-    <span class="px-2 py-1 text-xs bg-green-200 text-green-700 rounded">Open</span>
+    {{else if eq .Status "open"}}
+    <span class="badge-open">Open</span>
     <button hx-post="/admin/category/{{.ID}}/close"
             hx-target="#status-{{.ID}}"
             hx-swap="innerHTML"
-            class="px-2 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700">
+            class="bg-arcade-red/20 hover:bg-arcade-red/30 text-arcade-red px-3 py-1 rounded text-xs transition-colors">
         Close
     </button>
+    {{else if eq .Status "closed"}}
+    <span class="badge-closed">Closed</span>
+    <button hx-post="/admin/category/{{.ID}}/archive"
+            hx-target="#status-{{.ID}}"
+            hx-swap="innerHTML"
+            class="bg-neutral-700/50 hover:bg-neutral-700 text-neutral-400 px-3 py-1 rounded text-xs transition-colors">
+        Archive
+    </button>
+    {{else if eq .Status "archived"}}
+    <span class="badge-archived">Archived</span>
+    {{end}}
 </span>
-{{else}}
-<span class="px-2 py-1 text-xs bg-red-200 text-red-700 rounded">Closed</span>
-{{end}}
 {{end}}

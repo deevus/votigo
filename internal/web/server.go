@@ -46,6 +46,7 @@ func NewServer(database *sql.DB, adminPassword string, uiMode UIMode) (*Server, 
 		"home.html",
 		"vote.html",
 		"results.html",
+		"results-list.html",
 		"error.html",
 		"admin/dashboard.html",
 		"admin/category.html",
@@ -376,7 +377,16 @@ func (s *Server) handleVoteSubmit(w http.ResponseWriter, r *http.Request,
 }
 
 func (s *Server) handleResults(w http.ResponseWriter, r *http.Request) {
-	path := r.URL.Path[len("/results/"):]
+	path := r.URL.Path[len("/results"):]
+
+	// Handle /results (list all)
+	if path == "" || path == "/" {
+		s.handleResultsList(w, r)
+		return
+	}
+
+	// Remove leading slash for ID parsing
+	path = strings.TrimPrefix(path, "/")
 
 	// Check for /results/{id}/table
 	if strings.HasSuffix(path, "/table") {
@@ -390,7 +400,7 @@ func (s *Server) handleResults(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Regular results page
+	// Regular results page /results/{id}
 	id, err := strconv.ParseInt(path, 10, 64)
 	if err != nil {
 		http.NotFound(w, r)
@@ -540,6 +550,18 @@ func (s *Server) handleResultsTable(w http.ResponseWriter, r *http.Request, id i
 	})
 }
 
+func (s *Server) handleResultsList(w http.ResponseWriter, r *http.Request) {
+	categories, err := s.queries.ListCategoriesWithResults(r.Context())
+	if err != nil {
+		s.renderError(w, "Failed to load categories", err)
+		return
+	}
+
+	s.render(w, "results-list.html", map[string]any{
+		"Categories": categories,
+	})
+}
+
 func (s *Server) handleAdmin(w http.ResponseWriter, r *http.Request) {
 	// Basic auth check
 	user, pass, ok := r.BasicAuth()
@@ -565,7 +587,7 @@ func (s *Server) handleAdmin(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) handleAdminDashboard(w http.ResponseWriter, r *http.Request) {
-	categories, err := s.queries.ListCategories(r.Context())
+	categories, err := s.queries.ListCategoriesExcludeArchived(r.Context())
 	if err != nil {
 		s.renderError(w, "Failed to load categories", err)
 		return
@@ -608,6 +630,8 @@ func (s *Server) handleAdminCategory(w http.ResponseWriter, r *http.Request) {
 		s.handleAdminOpen(w, r, id)
 	case "close":
 		s.handleAdminClose(w, r, id)
+	case "archive":
+		s.handleAdminArchive(w, r, id)
 	case "option":
 		s.handleAdminAddOption(w, r, id)
 	default:
@@ -759,6 +783,27 @@ func (s *Server) handleAdminClose(w http.ResponseWriter, r *http.Request, id int
 		Status: "closed",
 		ID:     id,
 	})
+
+	if s.isHTMX(r) {
+		cat, _ := s.queries.GetCategory(r.Context(), id)
+		s.renderPartial(w, "partials/status-badge.html", cat)
+		return
+	}
+
+	http.Redirect(w, r, "/admin", http.StatusSeeOther)
+}
+
+func (s *Server) handleAdminArchive(w http.ResponseWriter, r *http.Request, id int64) {
+	if r.Method != http.MethodPost {
+		http.NotFound(w, r)
+		return
+	}
+
+	if err := s.queries.ArchiveCategory(r.Context(), id); err != nil {
+		log.Printf("Failed to archive category %d: %v", id, err)
+		http.Error(w, "Failed to archive category", http.StatusInternalServerError)
+		return
+	}
 
 	if s.isHTMX(r) {
 		cat, _ := s.queries.GetCategory(r.Context(), id)

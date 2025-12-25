@@ -16,6 +16,18 @@ SELECT * FROM categories ORDER BY created_at DESC;
 -- name: ListOpenCategories :many
 SELECT * FROM categories WHERE status = 'open' ORDER BY created_at DESC;
 
+-- name: ListCategoriesExcludeArchived :many
+SELECT * FROM categories WHERE status != 'archived' ORDER BY id;
+
+-- name: ListCategoriesWithResults :many
+SELECT * FROM categories
+WHERE (show_results = 'live' AND status = 'open')
+   OR (show_results = 'after_close' AND status = 'closed')
+ORDER BY id;
+
+-- name: ArchiveCategory :exec
+UPDATE categories SET status = 'archived' WHERE id = ?;
+
 -- name: UpdateCategoryStatus :exec
 UPDATE categories SET status = ? WHERE id = ?;
 
