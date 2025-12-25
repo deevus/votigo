@@ -1,0 +1,70 @@
+{{define "content"}}
+<div class="bg-white rounded-lg shadow p-6">
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">Admin Dashboard</h1>
+        <a href="/admin/category/new"
+           class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+            + New Category
+        </a>
+    </div>
+
+    {{if .Categories}}
+    <table class="w-full">
+        <thead>
+            <tr class="border-b">
+                <th class="text-left py-3 px-2 text-gray-600">ID</th>
+                <th class="text-left py-3 px-2 text-gray-600">Name</th>
+                <th class="text-left py-3 px-2 text-gray-600">Type</th>
+                <th class="text-left py-3 px-2 text-gray-600">Status</th>
+                <th class="text-left py-3 px-2 text-gray-600">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .Categories}}
+            <tr class="border-b hover:bg-gray-50">
+                <td class="py-3 px-2">{{.ID}}</td>
+                <td class="py-3 px-2">
+                    <a href="/admin/category/{{.ID}}" class="text-blue-600 hover:underline">{{.Name}}</a>
+                </td>
+                <td class="py-3 px-2">{{.VoteType}}</td>
+                <td class="py-3 px-2" id="status-{{.ID}}">
+                    {{template "status-badge-inner" .}}
+                </td>
+                <td class="py-3 px-2">
+                    <a href="/results/{{.ID}}" class="text-blue-600 hover:underline">Results</a>
+                </td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+    {{else}}
+    <p class="text-gray-500">No categories yet.</p>
+    {{end}}
+</div>
+{{end}}
+
+{{define "status-badge-inner"}}
+{{if eq .Status "draft"}}
+<span class="inline-flex items-center gap-2">
+    <span class="px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded">Draft</span>
+    <button hx-post="/admin/category/{{.ID}}/open"
+            hx-target="#status-{{.ID}}"
+            hx-swap="innerHTML"
+            class="px-2 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700">
+        Open
+    </button>
+</span>
+{{else if eq .Status "open"}}
+<span class="inline-flex items-center gap-2">
+    <span class="px-2 py-1 text-xs bg-green-200 text-green-700 rounded">Open</span>
+    <button hx-post="/admin/category/{{.ID}}/close"
+            hx-target="#status-{{.ID}}"
+            hx-swap="innerHTML"
+            class="px-2 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700">
+        Close
+    </button>
+</span>
+{{else}}
+<span class="px-2 py-1 text-xs bg-red-200 text-red-700 rounded">Closed</span>
+{{end}}
+{{end}}

@@ -720,6 +720,11 @@ func (s *Server) handleAdminOpen(w http.ResponseWriter, r *http.Request, id int6
 
 	count, _ := s.queries.CountOptionsByCategory(r.Context(), id)
 	if count == 0 {
+		if s.isHTMX(r) {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("Add options first"))
+			return
+		}
 		cat, _ := s.queries.GetCategory(r.Context(), id)
 		options, _ := s.queries.ListOptionsByCategory(r.Context(), id)
 		s.render(w, "admin/category.html", map[string]any{
@@ -734,6 +739,13 @@ func (s *Server) handleAdminOpen(w http.ResponseWriter, r *http.Request, id int6
 		Status: "open",
 		ID:     id,
 	})
+
+	if s.isHTMX(r) {
+		cat, _ := s.queries.GetCategory(r.Context(), id)
+		s.renderPartial(w, "partials/status-badge.html", cat)
+		return
+	}
+
 	http.Redirect(w, r, "/admin", http.StatusSeeOther)
 }
 
@@ -747,6 +759,13 @@ func (s *Server) handleAdminClose(w http.ResponseWriter, r *http.Request, id int
 		Status: "closed",
 		ID:     id,
 	})
+
+	if s.isHTMX(r) {
+		cat, _ := s.queries.GetCategory(r.Context(), id)
+		s.renderPartial(w, "partials/status-badge.html", cat)
+		return
+	}
+
 	http.Redirect(w, r, "/admin", http.StatusSeeOther)
 }
 
