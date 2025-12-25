@@ -245,14 +245,19 @@ func (s *Server) handleVoteSubmit(w http.ResponseWriter, r *http.Request,
 	}
 
 	renderVoteError := func(nickname, errMsg string) {
-		s.render(w, "vote.html", map[string]any{
+		data := map[string]any{
 			"Category": cat,
 			"Options":  options,
 			"Nickname": nickname,
 			"Ranks":    ranks,
 			"MaxRank":  maxRank,
 			"Error":    errMsg,
-		})
+		}
+		if s.isHTMX(r) {
+			s.renderPartial(w, "partials/vote-form.html", data)
+		} else {
+			s.render(w, "vote.html", data)
+		}
 	}
 
 	nickname := strings.TrimSpace(r.FormValue("nickname"))
@@ -359,10 +364,16 @@ func (s *Server) handleVoteSubmit(w http.ResponseWriter, r *http.Request,
 		return
 	}
 
-	s.render(w, "vote.html", map[string]any{
+	data := map[string]any{
 		"Category": cat,
 		"Success":  "Vote recorded! Thank you, " + nickname,
-	})
+	}
+
+	if s.isHTMX(r) {
+		s.renderPartial(w, "partials/vote-form.html", data)
+	} else {
+		s.render(w, "vote.html", data)
+	}
 }
 
 func (s *Server) handleResults(w http.ResponseWriter, r *http.Request) {
