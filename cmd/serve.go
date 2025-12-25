@@ -6,7 +6,7 @@ import (
 )
 
 func (c *ServeCmd) Run(ctx *Context) error {
-	server, err := web.NewServer(ctx.DB, c.AdminPassword)
+	server, err := web.NewServer(ctx.DB, c.AdminPassword, c.UI)
 	if err != nil {
 		return err
 	}

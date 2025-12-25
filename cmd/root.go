@@ -27,6 +27,7 @@ type CLI struct {
 type ServeCmd struct {
 	Port          int    `help:"Port to listen on" default:"5000"`
 	AdminPassword string `help:"Password for admin interface" required:""`
+	UI            string `help:"UI style" enum:"modern,legacy" default:"modern"`
 }
 
 type CategoryCmd struct {
