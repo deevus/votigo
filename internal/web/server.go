@@ -778,6 +778,10 @@ func (s *Server) handleAdminAddOption(w http.ResponseWriter, r *http.Request, ca
 	r.ParseForm()
 	name := strings.TrimSpace(r.FormValue("option_name"))
 	if name == "" {
+		if s.isHTMX(r) {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
 		http.Redirect(w, r, fmt.Sprintf("/admin/category/%d", categoryID), http.StatusSeeOther)
 		return
 	}
@@ -789,24 +793,32 @@ func (s *Server) handleAdminAddOption(w http.ResponseWriter, r *http.Request, ca
 		SortOrder:  sql.NullInt64{Int64: count, Valid: true},
 	})
 
+	if s.isHTMX(r) {
+		// Get the newly created option
+		options, _ := s.queries.ListOptionsByCategory(r.Context(), categoryID)
+		if len(options) > 0 {
+			newOpt := options[len(options)-1]
+			s.renderPartial(w, "partials/option-row.html", newOpt)
+		}
+		return
+	}
+
 	http.Redirect(w, r, fmt.Sprintf("/admin/category/%d", categoryID), http.StatusSeeOther)
 }
 
 func (s *Server) handleAdminDeleteOption(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
+	// Accept both POST and DELETE
+	if r.Method != http.MethodPost && r.Method != http.MethodDelete {
 		http.NotFound(w, r)
 		return
 	}
 
-	// Parse /admin/option/{id}/delete
+	// Parse /admin/option/{id} or /admin/option/{id}/delete
 	path := r.URL.Path
-	parts := strings.Split(strings.TrimPrefix(path, "/admin/option/"), "/")
-	if len(parts) < 2 || parts[1] != "delete" {
-		http.NotFound(w, r)
-		return
-	}
+	path = strings.TrimPrefix(path, "/admin/option/")
+	path = strings.TrimSuffix(path, "/delete")
 
-	id, err := strconv.ParseInt(parts[0], 10, 64)
+	id, err := strconv.ParseInt(path, 10, 64)
 	if err != nil {
 		http.NotFound(w, r)
 		return
@@ -814,10 +826,21 @@ func (s *Server) handleAdminDeleteOption(w http.ResponseWriter, r *http.Request)
 
 	opt, err := s.queries.GetOption(r.Context(), id)
 	if err != nil {
+		if s.isHTMX(r) {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
 		http.Redirect(w, r, "/admin", http.StatusSeeOther)
 		return
 	}
 
 	s.queries.DeleteOption(r.Context(), id)
+
+	if s.isHTMX(r) {
+		// Return empty response - htmx will remove the element
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
 	http.Redirect(w, r, fmt.Sprintf("/admin/category/%d", opt.CategoryID), http.StatusSeeOther)
 }

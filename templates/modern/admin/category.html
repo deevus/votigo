@@ -1,0 +1,96 @@
+{{define "content"}}
+<div class="bg-white rounded-lg shadow p-6">
+    <h1 class="text-2xl font-bold text-gray-800 mb-6">
+        {{if .Category}}Edit Category{{else}}New Category{{end}}
+    </h1>
+
+    {{if .Error}}
+    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+        {{.Error}}
+    </div>
+    {{end}}
+
+    <form method="POST" class="space-y-4 mb-8">
+        <div>
+            <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+            <input type="text" name="name" id="name"
+                   value="{{if .Category}}{{.Category.Name}}{{end}}"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <div>
+            <label for="vote_type" class="block text-sm font-medium text-gray-700 mb-1">Vote Type</label>
+            <select name="vote_type" id="vote_type"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                <option value="single" {{if and .Category (eq .Category.VoteType "single")}}selected{{end}}>Single Choice</option>
+                <option value="approval" {{if and .Category (eq .Category.VoteType "approval")}}selected{{end}}>Approval</option>
+                <option value="ranked" {{if and .Category (eq .Category.VoteType "ranked")}}selected{{end}}>Ranked</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="max_rank" class="block text-sm font-medium text-gray-700 mb-1">Max Rank (for ranked voting)</label>
+            <input type="number" name="max_rank" id="max_rank"
+                   value="{{if and .Category .Category.MaxRank.Valid}}{{.Category.MaxRank.Int64}}{{else}}3{{end}}"
+                   class="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <div>
+            <label for="show_results" class="block text-sm font-medium text-gray-700 mb-1">Show Results</label>
+            <select name="show_results" id="show_results"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                <option value="after_close" {{if and .Category (eq .Category.ShowResults "after_close")}}selected{{end}}>After Close</option>
+                <option value="live" {{if and .Category (eq .Category.ShowResults "live")}}selected{{end}}>Live</option>
+            </select>
+        </div>
+
+        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+            Save
+        </button>
+    </form>
+
+    {{if .Category}}
+    <hr class="my-6">
+
+    <h2 class="text-xl font-semibold text-gray-800 mb-4">Options</h2>
+
+    <form hx-post="/admin/category/{{.Category.ID}}/option"
+          hx-target="#option-list"
+          hx-swap="beforeend"
+          hx-on::after-request="this.reset()"
+          class="flex gap-2 mb-4">
+        <input type="text" name="option_name" placeholder="New option name"
+               class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+        <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+            Add
+        </button>
+    </form>
+
+    <div id="option-list" class="space-y-2">
+        {{range .Options}}
+        {{template "option-row-inner" .}}
+        {{end}}
+    </div>
+
+    {{if not .Options}}
+    <p class="text-gray-500" id="no-options">No options yet.</p>
+    {{end}}
+    {{end}}
+
+    <p class="mt-6">
+        <a href="/admin" class="text-blue-600 hover:underline">&larr; Back to dashboard</a>
+    </p>
+</div>
+{{end}}
+
+{{define "option-row-inner"}}
+<div id="option-{{.ID}}" class="flex items-center justify-between p-3 border rounded-lg">
+    <span>{{.Name}}</span>
+    <button hx-delete="/admin/option/{{.ID}}"
+            hx-target="#option-{{.ID}}"
+            hx-swap="outerHTML"
+            class="px-2 py-1 text-sm text-red-600 hover:bg-red-50 rounded">
+        Delete
+    </button>
+</div>
+{{end}}
