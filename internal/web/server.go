@@ -11,22 +11,35 @@ import (
 	"strings"
 
 	"github.com/palm-arcade/votigo/internal/db"
+	"github.com/palm-arcade/votigo/static"
 	"github.com/palm-arcade/votigo/templates"
+)
+
+type UIMode string
+
+const (
+	UIModeModern UIMode = "modern"
+	UIModeLegacy UIMode = "legacy"
 )
 
 type Server struct {
 	db            *sql.DB
 	queries       *db.Queries
 	templates     map[string]*template.Template
+	partials      map[string]*template.Template
 	adminPassword string
+	uiMode        UIMode
 }
 
-func NewServer(database *sql.DB, adminPassword string) (*Server, error) {
+func NewServer(database *sql.DB, adminPassword string, uiMode UIMode) (*Server, error) {
 	funcMap := template.FuncMap{
 		"add": func(a, b int) int { return a + b },
 	}
 
+	templateDir := string(uiMode)
+
 	tmpls := make(map[string]*template.Template)
+	partials := make(map[string]*template.Template)
 
 	// List of page templates to load with layout
 	pages := []string{
@@ -38,19 +51,17 @@ func NewServer(database *sql.DB, adminPassword string) (*Server, error) {
 		"admin/category.html",
 	}
 
-	layoutContent, err := templates.FS.ReadFile("layout.html")
+	layoutContent, err := templates.FS.ReadFile(templateDir + "/layout.html")
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read layout: %w", err)
 	}
 
 	for _, page := range pages {
-		pageContent, err := templates.FS.ReadFile(page)
+		pageContent, err := templates.FS.ReadFile(templateDir + "/" + page)
 		if err != nil {
-			// Skip missing templates for now
 			continue
 		}
 
-		// Create a separate template for each page
 		t, err := template.New(page).Funcs(funcMap).Parse(string(layoutContent) + string(pageContent))
 		if err != nil {
 			return nil, err
@@ -58,16 +69,45 @@ func NewServer(database *sql.DB, adminPassword string) (*Server, error) {
 		tmpls[page] = t
 	}
 
+	// Load partials for modern UI (htmx responses)
+	if uiMode == UIModeModern {
+		partialFiles := []string{
+			"partials/vote-form.html",
+			"partials/vote-success.html",
+			"partials/option-row.html",
+			"partials/results-table.html",
+			"partials/status-badge.html",
+		}
+		for _, partial := range partialFiles {
+			content, err := templates.FS.ReadFile("modern/" + partial)
+			if err != nil {
+				continue
+			}
+			t, err := template.New(partial).Funcs(funcMap).Parse(string(content))
+			if err != nil {
+				return nil, err
+			}
+			partials[partial] = t
+		}
+	}
+
 	return &Server{
 		db:            database,
 		queries:       db.New(database),
 		templates:     tmpls,
+		partials:      partials,
 		adminPassword: adminPassword,
+		uiMode:        uiMode,
 	}, nil
 }
 
 func (s *Server) Start(port int) error {
 	mux := http.NewServeMux()
+
+	// Static files (for modern UI)
+	if s.uiMode == UIModeModern {
+		mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.FS(static.FS))))
+	}
 
 	// Voter routes
 	mux.HandleFunc("/", s.handleHome)
@@ -102,6 +142,23 @@ func (s *Server) renderError(w http.ResponseWriter, message string, err error) {
 	s.render(w, "error.html", map[string]any{
 		"Message": message,
 	})
+}
+
+func (s *Server) isHTMX(r *http.Request) bool {
+	return r.Header.Get("HX-Request") == "true"
+}
+
+func (s *Server) renderPartial(w http.ResponseWriter, name string, data any) {
+	t, ok := s.partials[name]
+	if !ok {
+		log.Printf("Partial not found: %s", name)
+		http.Error(w, "Partial not found", http.StatusInternalServerError)
+		return
+	}
+	err := t.Execute(w, data)
+	if err != nil {
+		log.Printf("Partial error: %v", err)
+	}
 }
 
 func (s *Server) handleHome(w http.ResponseWriter, r *http.Request) {
