@@ -1,0 +1,73 @@
+{{define "content"}}
+<h1>{{if .Category}}Edit Category{{else}}New Category{{end}}</h1>
+
+{{if .Error}}
+<p class="error">{{.Error}}</p>
+{{end}}
+
+<form method="POST">
+  <p>
+    <label for="name"><b>Name:</b></label><br>
+    <input type="text" name="name" id="name" value="{{if .Category}}{{.Category.Name}}{{end}}" size="40">
+  </p>
+
+  <p>
+    <label for="vote_type"><b>Vote Type:</b></label><br>
+    <select name="vote_type" id="vote_type">
+      <option value="single" {{if and .Category (eq .Category.VoteType "single")}}selected{{end}}>Single Choice</option>
+      <option value="approval" {{if and .Category (eq .Category.VoteType "approval")}}selected{{end}}>Approval</option>
+      <option value="ranked" {{if and .Category (eq .Category.VoteType "ranked")}}selected{{end}}>Ranked</option>
+    </select>
+  </p>
+
+  <p>
+    <label for="max_rank"><b>Max Rank (for ranked voting):</b></label><br>
+    <input type="text" name="max_rank" id="max_rank" value="{{if and .Category .Category.MaxRank.Valid}}{{.Category.MaxRank.Int64}}{{else}}3{{end}}" size="5">
+  </p>
+
+  <p>
+    <label for="show_results"><b>Show Results:</b></label><br>
+    <select name="show_results" id="show_results">
+      <option value="after_close" {{if and .Category (eq .Category.ShowResults "after_close")}}selected{{end}}>After Close</option>
+      <option value="live" {{if and .Category (eq .Category.ShowResults "live")}}selected{{end}}>Live</option>
+    </select>
+  </p>
+
+  <p><input type="submit" value="Save" class="btn"></p>
+</form>
+
+{{if .Category}}
+<h2>Options</h2>
+<form method="POST" action="/admin/category/{{.Category.ID}}/option">
+  <p>
+    <input type="text" name="option_name" placeholder="New option name" size="30">
+    <input type="submit" value="Add Option" class="btn">
+  </p>
+</form>
+
+{{if .Options}}
+<table class="data">
+  <tr>
+    <th>ID</th>
+    <th>Name</th>
+    <th>Action</th>
+  </tr>
+  {{range .Options}}
+  <tr>
+    <td>{{.ID}}</td>
+    <td>{{.Name}}</td>
+    <td>
+      <form method="POST" action="/admin/option/{{.ID}}/delete" style="display:inline">
+        <input type="submit" value="Delete">
+      </form>
+    </td>
+  </tr>
+  {{end}}
+</table>
+{{else}}
+<p>No options yet.</p>
+{{end}}
+{{end}}
+
+<p><a href="/admin">Back to dashboard</a></p>
+{{end}}

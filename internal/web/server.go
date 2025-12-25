@@ -400,5 +400,206 @@ func (s *Server) handleAdmin(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
-	w.Write([]byte("Admin dashboard - coming soon"))
+
+	path := r.URL.Path
+
+	// Route admin requests
+	switch {
+	case path == "/admin" || path == "/admin/":
+		s.handleAdminDashboard(w, r)
+	case strings.HasPrefix(path, "/admin/category/"):
+		s.handleAdminCategory(w, r)
+	case strings.HasPrefix(path, "/admin/option/"):
+		s.handleAdminDeleteOption(w, r)
+	default:
+		http.NotFound(w, r)
+	}
+}
+
+func (s *Server) handleAdminDashboard(w http.ResponseWriter, r *http.Request) {
+	categories, err := s.queries.ListCategories(r.Context())
+	if err != nil {
+		s.renderError(w, "Failed to load categories", err)
+		return
+	}
+
+	s.render(w, "admin/dashboard.html", map[string]any{
+		"Categories": categories,
+	})
+}
+
+func (s *Server) handleAdminCategory(w http.ResponseWriter, r *http.Request) {
+	path := r.URL.Path
+
+	// Handle /admin/category/new
+	if strings.HasSuffix(path, "/new") {
+		s.handleAdminCategoryNew(w, r)
+		return
+	}
+
+	// Extract category ID and action
+	parts := strings.Split(strings.TrimPrefix(path, "/admin/category/"), "/")
+	if len(parts) == 0 {
+		http.NotFound(w, r)
+		return
+	}
+
+	id, err := strconv.ParseInt(parts[0], 10, 64)
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	action := ""
+	if len(parts) > 1 {
+		action = parts[1]
+	}
+
+	switch action {
+	case "open":
+		s.handleAdminOpen(w, r, id)
+	case "close":
+		s.handleAdminClose(w, r, id)
+	case "option":
+		s.handleAdminAddOption(w, r, id)
+	default:
+		s.handleAdminCategoryEdit(w, r, id)
+	}
+}
+
+func (s *Server) handleAdminCategoryNew(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		r.ParseForm()
+		name := r.FormValue("name")
+		voteType := r.FormValue("vote_type")
+		showResults := r.FormValue("show_results")
+		maxRankStr := r.FormValue("max_rank")
+
+		var maxRank sql.NullInt64
+		if voteType == "ranked" {
+			mr, _ := strconv.ParseInt(maxRankStr, 10, 64)
+			if mr <= 0 {
+				mr = 3
+			}
+			maxRank = sql.NullInt64{Int64: mr, Valid: true}
+		}
+
+		_, err := s.queries.CreateCategory(r.Context(), db.CreateCategoryParams{
+			Name:        name,
+			VoteType:    voteType,
+			Status:      "draft",
+			ShowResults: showResults,
+			MaxRank:     maxRank,
+		})
+		if err != nil {
+			s.render(w, "admin/category.html", map[string]any{
+				"Error": "Failed to create category",
+			})
+			return
+		}
+		http.Redirect(w, r, "/admin", http.StatusSeeOther)
+		return
+	}
+
+	s.render(w, "admin/category.html", nil)
+}
+
+func (s *Server) handleAdminCategoryEdit(w http.ResponseWriter, r *http.Request, id int64) {
+	cat, err := s.queries.GetCategory(r.Context(), id)
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	options, _ := s.queries.ListOptionsByCategory(r.Context(), id)
+
+	s.render(w, "admin/category.html", map[string]any{
+		"Category": cat,
+		"Options":  options,
+	})
+}
+
+func (s *Server) handleAdminOpen(w http.ResponseWriter, r *http.Request, id int64) {
+	if r.Method != http.MethodPost {
+		http.NotFound(w, r)
+		return
+	}
+
+	count, _ := s.queries.CountOptionsByCategory(r.Context(), id)
+	if count == 0 {
+		http.Redirect(w, r, "/admin", http.StatusSeeOther)
+		return
+	}
+
+	s.queries.UpdateCategoryStatus(r.Context(), db.UpdateCategoryStatusParams{
+		Status: "open",
+		ID:     id,
+	})
+	http.Redirect(w, r, "/admin", http.StatusSeeOther)
+}
+
+func (s *Server) handleAdminClose(w http.ResponseWriter, r *http.Request, id int64) {
+	if r.Method != http.MethodPost {
+		http.NotFound(w, r)
+		return
+	}
+
+	s.queries.UpdateCategoryStatus(r.Context(), db.UpdateCategoryStatusParams{
+		Status: "closed",
+		ID:     id,
+	})
+	http.Redirect(w, r, "/admin", http.StatusSeeOther)
+}
+
+func (s *Server) handleAdminAddOption(w http.ResponseWriter, r *http.Request, categoryID int64) {
+	if r.Method != http.MethodPost {
+		http.NotFound(w, r)
+		return
+	}
+
+	r.ParseForm()
+	name := strings.TrimSpace(r.FormValue("option_name"))
+	if name == "" {
+		http.Redirect(w, r, fmt.Sprintf("/admin/category/%d", categoryID), http.StatusSeeOther)
+		return
+	}
+
+	count, _ := s.queries.CountOptionsByCategory(r.Context(), categoryID)
+	s.queries.CreateOption(r.Context(), db.CreateOptionParams{
+		CategoryID: categoryID,
+		Name:       name,
+		SortOrder:  sql.NullInt64{Int64: count, Valid: true},
+	})
+
+	http.Redirect(w, r, fmt.Sprintf("/admin/category/%d", categoryID), http.StatusSeeOther)
+}
+
+func (s *Server) handleAdminDeleteOption(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.NotFound(w, r)
+		return
+	}
+
+	// Parse /admin/option/{id}/delete
+	path := r.URL.Path
+	parts := strings.Split(strings.TrimPrefix(path, "/admin/option/"), "/")
+	if len(parts) < 2 || parts[1] != "delete" {
+		http.NotFound(w, r)
+		return
+	}
+
+	id, err := strconv.ParseInt(parts[0], 10, 64)
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	opt, err := s.queries.GetOption(r.Context(), id)
+	if err != nil {
+		http.Redirect(w, r, "/admin", http.StatusSeeOther)
+		return
+	}
+
+	s.queries.DeleteOption(r.Context(), id)
+	http.Redirect(w, r, fmt.Sprintf("/admin/category/%d", opt.CategoryID), http.StatusSeeOther)
 }

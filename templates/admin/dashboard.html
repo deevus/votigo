@@ -1,0 +1,40 @@
+{{define "content"}}
+<h1>Admin Dashboard</h1>
+
+<h2>Categories</h2>
+<p><a href="/admin/category/new">+ New Category</a></p>
+
+{{if .Categories}}
+<table class="data">
+  <tr>
+    <th>ID</th>
+    <th>Name</th>
+    <th>Type</th>
+    <th>Status</th>
+    <th>Actions</th>
+  </tr>
+  {{range .Categories}}
+  <tr>
+    <td>{{.ID}}</td>
+    <td><a href="/admin/category/{{.ID}}">{{.Name}}</a></td>
+    <td>{{.VoteType}}</td>
+    <td>{{.Status}}</td>
+    <td>
+      {{if eq .Status "draft"}}
+      <form method="POST" action="/admin/category/{{.ID}}/open" style="display:inline">
+        <input type="submit" value="Open" class="btn">
+      </form>
+      {{else if eq .Status "open"}}
+      <form method="POST" action="/admin/category/{{.ID}}/close" style="display:inline">
+        <input type="submit" value="Close" class="btn">
+      </form>
+      {{end}}
+      <a href="/results/{{.ID}}">Results</a>
+    </td>
+  </tr>
+  {{end}}
+</table>
+{{else}}
+<p>No categories yet.</p>
+{{end}}
+{{end}}
