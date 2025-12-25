@@ -6,21 +6,33 @@
     <title>{{if .Title}}{{.Title}} - {{end}}Votigo</title>
     <link href="/static/css/styles.css" rel="stylesheet">
     <script src="/static/js/htmx.min.js"></script>
-    <script src="/static/js/flowbite.min.js"></script>
 </head>
-<body class="bg-gray-100 min-h-screen">
-    <nav class="bg-white shadow-sm border-b">
-        <div class="max-w-4xl mx-auto px-4 py-3">
-            <a href="/" class="text-xl font-bold text-gray-800">Votigo</a>
+<body class="min-h-screen bg-arcade-dark text-neutral-100 font-mono">
+    <!-- Scanlines overlay -->
+    <div class="scanlines fixed inset-0 z-50"></div>
+
+    <!-- Navigation -->
+    <nav class="border-b border-arcade-border bg-arcade-panel/80 backdrop-blur sticky top-0 z-40">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+            <a href="/" class="font-arcade text-xs text-arcade-green glow-green tracking-wider hover:text-green-400 transition-colors">
+                VOTIGO
+            </a>
+            <div class="flex gap-4 text-xs">
+                <a href="/" class="uppercase tracking-wide text-neutral-500 hover:text-neutral-300 transition-colors">Home</a>
+                <a href="/results" class="uppercase tracking-wide text-neutral-500 hover:text-neutral-300 transition-colors">Results</a>
+                <a href="/admin" class="uppercase tracking-wide text-neutral-500 hover:text-neutral-300 transition-colors">Admin</a>
+            </div>
         </div>
     </nav>
 
+    <!-- Main content -->
     <main class="max-w-4xl mx-auto px-4 py-8">
         {{template "content" .}}
     </main>
 
-    <footer class="text-center text-gray-500 text-sm py-6">
-        Powered by Votigo
+    <!-- Footer -->
+    <footer class="border-t border-arcade-border mt-16 py-6 text-center text-neutral-600 text-xs">
+        VOTIGO · Palm's Arcade · 2025
     </footer>
 </body>
 </html>

@@ -1,51 +1,86 @@
 {{define "content"}}
-<div class="bg-white rounded-lg shadow p-6">
-    <h1 class="text-2xl font-bold text-gray-800 mb-2">Results: {{.Category.Name}}</h1>
+<div class="space-y-8">
+    <!-- Header -->
+    <header>
+        <a href="/results" class="text-neutral-500 text-xs hover:text-neutral-300 mb-4 inline-block">
+            ← Back
+        </a>
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="font-arcade text-lg text-arcade-amber glow-amber">
+                    {{.Category.Name}}
+                </h1>
+                {{if not .NotVisible}}
+                <p class="text-neutral-500 text-sm mt-1">{{.VoteCount}} total votes</p>
+                {{end}}
+            </div>
+            {{if and (not .NotVisible) (eq .Category.Status "open")}}
+            <span class="badge-live">Live</span>
+            {{end}}
+        </div>
+    </header>
 
     {{if .NotVisible}}
-    <p class="text-gray-500 py-8">Results are not available yet. Check back after voting closes.</p>
+    <!-- Results hidden -->
+    <div class="arcade-border bg-arcade-panel/50 p-8 text-center">
+        <div class="text-neutral-500">
+            Results are not available yet
+        </div>
+        <div class="text-neutral-600 text-sm mt-2">
+            Check back after voting closes
+        </div>
+    </div>
     {{else}}
+    <!-- Results table -->
     <div id="results-table"
+         class="arcade-border bg-arcade-panel overflow-hidden"
          {{if eq .Category.Status "open"}}
          hx-get="/results/{{.Category.ID}}/table"
          hx-trigger="every 5s"
          hx-swap="innerHTML"
          {{end}}>
-        {{template "results-table-inner" .}}
+        {{template "results-table-content" .}}
     </div>
-    {{end}}
 
-    <p class="mt-6">
-        <a href="/" class="text-blue-600 hover:underline">&larr; Back to home</a>
+    {{if eq .Category.Status "open"}}
+    <p class="text-center text-neutral-600 text-xs">
+        Results update automatically every 5 seconds
     </p>
+    {{end}}
+    {{end}}
 </div>
 {{end}}
 
-{{define "results-table-inner"}}
-<p class="text-gray-600 mb-6">Total votes: <span class="font-semibold">{{.VoteCount}}</span></p>
+{{define "results-table-content"}}
 <table class="w-full">
     <thead>
-        <tr class="border-b">
-            <th class="text-left py-3 px-2 text-gray-600">Rank</th>
-            <th class="text-left py-3 px-2 text-gray-600">Option</th>
+        <tr class="border-b border-arcade-border text-xs text-neutral-500 uppercase tracking-wide">
+            <th class="text-left p-4 w-12">#</th>
+            <th class="text-left p-4">Option</th>
             {{if eq .Category.VoteType "ranked"}}
-            <th class="text-left py-3 px-2 text-gray-600">Points</th>
-            <th class="text-left py-3 px-2 text-gray-600">1st Place</th>
+            <th class="text-right p-4">Points</th>
+            <th class="text-right p-4">1st</th>
             {{else}}
-            <th class="text-left py-3 px-2 text-gray-600">Votes</th>
+            <th class="text-right p-4">Votes</th>
             {{end}}
         </tr>
     </thead>
     <tbody>
         {{range $i, $r := .Results}}
-        <tr class="border-b hover:bg-gray-50">
-            <td class="py-3 px-2 font-medium">{{add $i 1}}</td>
-            <td class="py-3 px-2">{{$r.Name}}</td>
+        <tr class="border-b border-arcade-border/50 last:border-0 {{if eq $i 0}}bg-arcade-amber/5{{end}}">
+            <td class="p-4">
+                <span class="w-6 h-6 rounded flex items-center justify-center text-xs {{if eq $i 0}}bg-arcade-amber text-arcade-dark font-bold{{else}}bg-neutral-800 text-neutral-400{{end}}">
+                    {{add $i 1}}
+                </span>
+            </td>
+            <td class="p-4 {{if eq $i 0}}text-arcade-amber{{else}}text-neutral-200{{end}}">
+                {{$r.Name}}
+            </td>
             {{if eq $.Category.VoteType "ranked"}}
-            <td class="py-3 px-2">{{$r.Points}}</td>
-            <td class="py-3 px-2">{{$r.FirstPlace}}</td>
+            <td class="p-4 text-right text-neutral-400 tabular-nums">{{$r.Points}}</td>
+            <td class="p-4 text-right text-neutral-500 tabular-nums">{{$r.FirstPlace}}</td>
             {{else}}
-            <td class="py-3 px-2">{{$r.Votes}}</td>
+            <td class="p-4 text-right text-neutral-400 tabular-nums">{{$r.Votes}}</td>
             {{end}}
         </tr>
         {{end}}

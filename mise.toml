@@ -8,6 +8,9 @@ run = "tailwindcss -i templates/modern/input.css -o static/css/styles.css --mini
 [tasks.css-watch]
 run = "tailwindcss -i templates/modern/input.css -o static/css/styles.css --watch"
 
+[tasks.build]
+run = "go build -o votigo ."
+
 [tasks.vendor]
 run = """
 mkdir -p static/js

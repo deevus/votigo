@@ -3,33 +3,33 @@
     <!-- Header -->
     <header class="text-center py-8">
         <h1 class="font-arcade text-2xl text-arcade-green glow-green mb-3">
-            PALM'S ARCADE
+            RESULTS
         </h1>
-        <p class="text-neutral-500 text-sm">Cast your votes below</p>
+        <p class="text-neutral-500 text-sm">View voting results</p>
     </header>
 
     {{if .Categories}}
     <!-- Category list -->
     <div class="space-y-3">
         {{range .Categories}}
-        <a href="/vote/{{.ID}}"
+        <a href="/results/{{.ID}}"
            class="block w-full arcade-border bg-arcade-panel hover:bg-neutral-800 p-4 transition-all btn-arcade group">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-4">
-                    <span class="w-8 h-8 bg-arcade-green/10 border border-arcade-green/30 rounded flex items-center justify-center text-arcade-green text-xs">
+                    <span class="w-8 h-8 bg-arcade-amber/10 border border-arcade-amber/30 rounded flex items-center justify-center text-arcade-amber text-xs">
                         {{.ID}}
                     </span>
                     <div>
-                        <span class="text-neutral-100 group-hover:text-arcade-green transition-colors">
+                        <span class="text-neutral-100 group-hover:text-arcade-amber transition-colors">
                             {{.Name}}
                         </span>
                         <span class="block text-xs text-neutral-600 mt-0.5 uppercase">
-                            {{.VoteType}} VOTE
+                            {{.VoteType}} · {{if eq .Status "open"}}LIVE{{else}}FINAL{{end}}
                         </span>
                     </div>
                 </div>
-                <span class="text-arcade-green text-sm opacity-0 group-hover:opacity-100 transition-opacity">
-                    VOTE →
+                <span class="text-arcade-amber text-sm opacity-0 group-hover:opacity-100 transition-opacity">
+                    VIEW →
                 </span>
             </div>
         </a>
@@ -39,10 +39,10 @@
     <!-- Empty state -->
     <div class="arcade-border bg-arcade-panel/50 p-8 text-center">
         <div class="text-neutral-600 text-sm">
-            No open votes at the moment
+            No results available yet
         </div>
         <div class="text-neutral-700 text-xs mt-2">
-            Check back soon!
+            Check back after voting opens
         </div>
     </div>
     {{end}}
