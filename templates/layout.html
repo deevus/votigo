@@ -6,37 +6,37 @@
   <style type="text/css">
     body {
       font-family: Arial, Helvetica, sans-serif;
-      margin: 20px;
+      margin: 0;
+      padding: 0;
       background: #f5f5f5;
     }
-    .container {
-      max-width: 600px;
-      margin: 0 auto;
-      background: #fff;
-      padding: 20px;
-      border: 1px solid #ccc;
-    }
     h1 { color: #333; margin-top: 0; }
-    table { border-collapse: collapse; width: 100%; }
-    td, th { border: 1px solid #ccc; padding: 8px; text-align: left; }
-    th { background: #eee; }
+    table.data { border-collapse: collapse; width: 100%; }
+    table.data td, table.data th { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    table.data th { background: #eee; }
     .btn {
       padding: 8px 16px;
       background: #4CAF50;
       color: white;
       border: none;
+      cursor: hand;
       cursor: pointer;
     }
-    .btn:hover { background: #45a049; }
     .error { color: red; font-weight: bold; }
     .success { color: green; font-weight: bold; }
     a { color: #0066cc; }
-    input[type="text"] { padding: 8px; width: 200px; }
+    input { padding: 4px; }
   </style>
 </head>
 <body>
-  <div class="container">
-    {{template "content" .}}
-  </div>
+  <table border="0" cellpadding="0" cellspacing="0" width="100%">
+    <tr>
+      <td width="50%">&nbsp;</td>
+      <td width="600" bgcolor="#ffffff" style="border: 1px solid #ccc; padding: 20px;">
+        {{template "content" .}}
+      </td>
+      <td width="50%">&nbsp;</td>
+    </tr>
+  </table>
 </body>
 </html>
