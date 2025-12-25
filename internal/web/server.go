@@ -177,13 +177,30 @@ func (s *Server) handleVoteSubmit(w http.ResponseWriter, r *http.Request,
 
 	r.ParseForm()
 
-	nickname := strings.TrimSpace(r.FormValue("nickname"))
-	if nickname == "" {
+	// Helper to build vote form data with error
+	maxRank := int64(3)
+	if cat.MaxRank.Valid {
+		maxRank = cat.MaxRank.Int64
+	}
+	var ranks []int
+	if cat.VoteType == "ranked" {
+		ranks = make([]int, maxRank)
+	}
+
+	renderVoteError := func(nickname, errMsg string) {
 		s.render(w, "vote.html", map[string]any{
 			"Category": cat,
 			"Options":  options,
-			"Error":    "Please enter a nickname",
+			"Nickname": nickname,
+			"Ranks":    ranks,
+			"MaxRank":  maxRank,
+			"Error":    errMsg,
 		})
+	}
+
+	nickname := strings.TrimSpace(r.FormValue("nickname"))
+	if nickname == "" {
+		renderVoteError("", "Please enter a nickname")
 		return
 	}
 	nickname = strings.ToLower(nickname)
@@ -199,12 +216,7 @@ func (s *Server) handleVoteSubmit(w http.ResponseWriter, r *http.Request,
 	case "single":
 		choiceStr := r.FormValue("choice")
 		if choiceStr == "" {
-			s.render(w, "vote.html", map[string]any{
-				"Category": cat,
-				"Options":  options,
-				"Nickname": nickname,
-				"Error":    "Please make a selection",
-			})
+			renderVoteError(nickname, "Please make a selection")
 			return
 		}
 		optID, _ := strconv.ParseInt(choiceStr, 10, 64)
@@ -213,12 +225,7 @@ func (s *Server) handleVoteSubmit(w http.ResponseWriter, r *http.Request,
 	case "approval":
 		choices := r.Form["choice"]
 		if len(choices) == 0 {
-			s.render(w, "vote.html", map[string]any{
-				"Category": cat,
-				"Options":  options,
-				"Nickname": nickname,
-				"Error":    "Please make at least one selection",
-			})
+			renderVoteError(nickname, "Please make at least one selection")
 			return
 		}
 		for _, c := range choices {
@@ -227,10 +234,6 @@ func (s *Server) handleVoteSubmit(w http.ResponseWriter, r *http.Request,
 		}
 
 	case "ranked":
-		maxRank := int64(3)
-		if cat.MaxRank.Valid {
-			maxRank = cat.MaxRank.Int64
-		}
 		seen := make(map[int64]bool)
 		for i := int64(1); i <= maxRank; i++ {
 			val := r.FormValue(fmt.Sprintf("rank%d", i))
@@ -239,14 +242,7 @@ func (s *Server) handleVoteSubmit(w http.ResponseWriter, r *http.Request,
 			}
 			optID, _ := strconv.ParseInt(val, 10, 64)
 			if seen[optID] {
-				s.render(w, "vote.html", map[string]any{
-					"Category": cat,
-					"Options":  options,
-					"Nickname": nickname,
-					"Ranks":    make([]int, maxRank),
-					"MaxRank":  maxRank,
-					"Error":    "Each choice must be different",
-				})
+				renderVoteError(nickname, "Each choice must be different")
 				return
 			}
 			seen[optID] = true
@@ -256,14 +252,7 @@ func (s *Server) handleVoteSubmit(w http.ResponseWriter, r *http.Request,
 			})
 		}
 		if len(selections) == 0 {
-			s.render(w, "vote.html", map[string]any{
-				"Category": cat,
-				"Options":  options,
-				"Nickname": nickname,
-				"Ranks":    make([]int, maxRank),
-				"MaxRank":  maxRank,
-				"Error":    "Please make at least one selection",
-			})
+			renderVoteError(nickname, "Please make at least one selection")
 			return
 		}
 	}
