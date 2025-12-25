@@ -1,2 +1,16 @@
 [tools]
 go = "latest"
+"ubi:tailwindlabs/tailwindcss" = "latest"
+
+[tasks.css]
+run = "tailwindcss -i templates/modern/input.css -o static/css/styles.css --minify"
+
+[tasks.css-watch]
+run = "tailwindcss -i templates/modern/input.css -o static/css/styles.css --watch"
+
+[tasks.vendor]
+run = """
+mkdir -p static/js
+curl -sL -o static/js/htmx.min.js https://unpkg.com/htmx.org@2.0.4/dist/htmx.min.js
+curl -sL -o static/js/flowbite.min.js https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js
+"""

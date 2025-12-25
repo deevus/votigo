@@ -1,3 +1,9 @@
 docs/plans/
 votigo
 *.db
+
+# Vendored JS (downloaded via mise run vendor)
+static/js/*.js
+
+# Generated CSS (built via mise run css)
+static/css/styles.css
