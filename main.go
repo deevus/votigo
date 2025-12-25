@@ -11,7 +11,8 @@ func main() {
 		kong.Name("votigo"),
 		kong.Description("Voting app for Palm's Arcade Retro LAN"),
 		kong.UsageOnError(),
+		kong.Bind(&cmd.Context{}),
 	)
-	err := ctx.Run(&cli)
+	err := ctx.Run(&cmd.Context{})
 	ctx.FatalIfErrorf(err)
 }

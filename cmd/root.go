@@ -1,5 +1,17 @@
 package cmd
 
+import (
+	"database/sql"
+
+	"github.com/palm-arcade/votigo/internal/db"
+)
+
+// Context passed to all commands
+type Context struct {
+	DB      *sql.DB
+	Queries *db.Queries
+}
+
 type CLI struct {
 	DB string `help:"Path to database file" default:"votigo.db" type:"path"`
 
@@ -57,4 +69,21 @@ type CloseCmd struct {
 type ResultsCmd struct {
 	CategoryID int64 `arg:"" help:"Category ID"`
 	ShowVoters bool  `help:"Show voter nicknames"`
+}
+
+// AfterApply opens database connection
+func (c *CLI) AfterApply(ctx *Context) error {
+	conn, err := db.Open(c.DB)
+	if err != nil {
+		return err
+	}
+
+	if err := db.Migrate(conn); err != nil {
+		conn.Close()
+		return err
+	}
+
+	ctx.DB = conn
+	ctx.Queries = db.New(conn)
+	return nil
 }
