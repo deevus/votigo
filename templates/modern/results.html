@@ -1,0 +1,55 @@
+{{define "content"}}
+<div class="bg-white rounded-lg shadow p-6">
+    <h1 class="text-2xl font-bold text-gray-800 mb-2">Results: {{.Category.Name}}</h1>
+
+    {{if .NotVisible}}
+    <p class="text-gray-500 py-8">Results are not available yet. Check back after voting closes.</p>
+    {{else}}
+    <p class="text-gray-600 mb-6">Total votes: <span class="font-semibold">{{.VoteCount}}</span></p>
+
+    <div id="results-table"
+         {{if eq .Category.Status "open"}}
+         hx-get="/results/{{.Category.ID}}/table"
+         hx-trigger="every 5s"
+         hx-swap="innerHTML"
+         {{end}}>
+        {{template "results-table-inner" .}}
+    </div>
+    {{end}}
+
+    <p class="mt-6">
+        <a href="/" class="text-blue-600 hover:underline">&larr; Back to home</a>
+    </p>
+</div>
+{{end}}
+
+{{define "results-table-inner"}}
+<table class="w-full">
+    <thead>
+        <tr class="border-b">
+            <th class="text-left py-3 px-2 text-gray-600">Rank</th>
+            <th class="text-left py-3 px-2 text-gray-600">Option</th>
+            {{if eq .Category.VoteType "ranked"}}
+            <th class="text-left py-3 px-2 text-gray-600">Points</th>
+            <th class="text-left py-3 px-2 text-gray-600">1st Place</th>
+            {{else}}
+            <th class="text-left py-3 px-2 text-gray-600">Votes</th>
+            {{end}}
+        </tr>
+    </thead>
+    <tbody>
+        {{range $i, $r := .Results}}
+        <tr class="border-b hover:bg-gray-50">
+            <td class="py-3 px-2 font-medium">{{add $i 1}}</td>
+            <td class="py-3 px-2">{{$r.Name}}</td>
+            {{if eq $.Category.VoteType "ranked"}}
+            <td class="py-3 px-2">{{$r.Points}}</td>
+            <td class="py-3 px-2">{{$r.FirstPlace}}</td>
+            {{else}}
+            <td class="py-3 px-2">{{$r.Votes}}</td>
+            {{end}}
+        </tr>
+        {{end}}
+    </tbody>
+</table>
+{{end}}

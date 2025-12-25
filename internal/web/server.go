@@ -377,8 +377,22 @@ func (s *Server) handleVoteSubmit(w http.ResponseWriter, r *http.Request,
 }
 
 func (s *Server) handleResults(w http.ResponseWriter, r *http.Request) {
-	idStr := r.URL.Path[len("/results/"):]
-	id, err := strconv.ParseInt(idStr, 10, 64)
+	path := r.URL.Path[len("/results/"):]
+
+	// Check for /results/{id}/table
+	if strings.HasSuffix(path, "/table") {
+		idStr := strings.TrimSuffix(path, "/table")
+		id, err := strconv.ParseInt(idStr, 10, 64)
+		if err != nil {
+			http.NotFound(w, r)
+			return
+		}
+		s.handleResultsTable(w, r, id)
+		return
+	}
+
+	// Regular results page
+	id, err := strconv.ParseInt(path, 10, 64)
 	if err != nil {
 		http.NotFound(w, r)
 		return
@@ -454,6 +468,73 @@ func (s *Server) handleResults(w http.ResponseWriter, r *http.Request) {
 	}
 
 	s.render(w, "results.html", map[string]any{
+		"Category":  cat,
+		"VoteCount": voteCount,
+		"Results":   results,
+	})
+}
+
+func (s *Server) handleResultsTable(w http.ResponseWriter, r *http.Request, id int64) {
+	cat, err := s.queries.GetCategory(r.Context(), id)
+	if err != nil {
+		http.Error(w, "Not found", http.StatusNotFound)
+		return
+	}
+
+	voteCount, _ := s.queries.CountVotesByCategory(r.Context(), id)
+
+	type Result struct {
+		Name       string
+		Votes      int64
+		Points     int64
+		FirstPlace int64
+	}
+	var results []Result
+
+	if cat.VoteType == "ranked" {
+		maxRank := sql.NullInt64{Int64: 3, Valid: true}
+		if cat.MaxRank.Valid {
+			maxRank = cat.MaxRank
+		}
+		rows, err := s.queries.TallyRanked(r.Context(), db.TallyRankedParams{
+			MaxRank:    maxRank,
+			CategoryID: id,
+		})
+		if err != nil {
+			http.Error(w, "Error", http.StatusInternalServerError)
+			return
+		}
+		for _, row := range rows {
+			points := int64(0)
+			if row.Points != nil {
+				switch v := row.Points.(type) {
+				case int64:
+					points = v
+				case float64:
+					points = int64(v)
+				}
+			}
+			results = append(results, Result{
+				Name:       row.Name,
+				Points:     points,
+				FirstPlace: row.FirstPlaceVotes,
+			})
+		}
+	} else {
+		rows, err := s.queries.TallySimple(r.Context(), id)
+		if err != nil {
+			http.Error(w, "Error", http.StatusInternalServerError)
+			return
+		}
+		for _, row := range rows {
+			results = append(results, Result{
+				Name:  row.Name,
+				Votes: row.Votes,
+			})
+		}
+	}
+
+	s.renderPartial(w, "partials/results-table.html", map[string]any{
 		"Category":  cat,
 		"VoteCount": voteCount,
 		"Results":   results,
