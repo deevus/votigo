@@ -7,14 +7,143 @@ package db
 
 import (
 	"context"
+	"database/sql"
 )
 
-const getCategory = `-- name: GetCategory :one
+const countOptionsByCategory = `-- name: CountOptionsByCategory :one
+SELECT COUNT(*) FROM options WHERE category_id = ?
+`
 
+func (q *Queries) CountOptionsByCategory(ctx context.Context, categoryID int64) (int64, error) {
+	row := q.db.QueryRowContext(ctx, countOptionsByCategory, categoryID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countVotesByCategory = `-- name: CountVotesByCategory :one
+SELECT COUNT(*) FROM votes WHERE category_id = ?
+`
+
+func (q *Queries) CountVotesByCategory(ctx context.Context, categoryID int64) (int64, error) {
+	row := q.db.QueryRowContext(ctx, countVotesByCategory, categoryID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const createCategory = `-- name: CreateCategory :one
+
+
+INSERT INTO categories (name, vote_type, status, show_results, max_rank)
+VALUES (?, ?, ?, ?, ?)
+RETURNING id, name, vote_type, status, show_results, max_rank, created_at
+`
+
+type CreateCategoryParams struct {
+	Name        string        `json:"name"`
+	VoteType    string        `json:"vote_type"`
+	Status      string        `json:"status"`
+	ShowResults string        `json:"show_results"`
+	MaxRank     sql.NullInt64 `json:"max_rank"`
+}
+
+// Queries for sqlc code generation
+// Category queries
+func (q *Queries) CreateCategory(ctx context.Context, arg CreateCategoryParams) (Category, error) {
+	row := q.db.QueryRowContext(ctx, createCategory,
+		arg.Name,
+		arg.VoteType,
+		arg.Status,
+		arg.ShowResults,
+		arg.MaxRank,
+	)
+	var i Category
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.VoteType,
+		&i.Status,
+		&i.ShowResults,
+		&i.MaxRank,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const createOption = `-- name: CreateOption :one
+
+INSERT INTO options (category_id, name, sort_order)
+VALUES (?, ?, ?)
+RETURNING id, category_id, name, sort_order
+`
+
+type CreateOptionParams struct {
+	CategoryID int64         `json:"category_id"`
+	Name       string        `json:"name"`
+	SortOrder  sql.NullInt64 `json:"sort_order"`
+}
+
+// Option queries
+func (q *Queries) CreateOption(ctx context.Context, arg CreateOptionParams) (Option, error) {
+	row := q.db.QueryRowContext(ctx, createOption, arg.CategoryID, arg.Name, arg.SortOrder)
+	var i Option
+	err := row.Scan(
+		&i.ID,
+		&i.CategoryID,
+		&i.Name,
+		&i.SortOrder,
+	)
+	return i, err
+}
+
+const createVoteSelection = `-- name: CreateVoteSelection :exec
+INSERT INTO vote_selections (vote_id, option_id, rank)
+VALUES (?, ?, ?)
+`
+
+type CreateVoteSelectionParams struct {
+	VoteID   int64         `json:"vote_id"`
+	OptionID int64         `json:"option_id"`
+	Rank     sql.NullInt64 `json:"rank"`
+}
+
+func (q *Queries) CreateVoteSelection(ctx context.Context, arg CreateVoteSelectionParams) error {
+	_, err := q.db.ExecContext(ctx, createVoteSelection, arg.VoteID, arg.OptionID, arg.Rank)
+	return err
+}
+
+const deleteCategory = `-- name: DeleteCategory :exec
+DELETE FROM categories WHERE id = ?
+`
+
+func (q *Queries) DeleteCategory(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, deleteCategory, id)
+	return err
+}
+
+const deleteOption = `-- name: DeleteOption :exec
+DELETE FROM options WHERE id = ?
+`
+
+func (q *Queries) DeleteOption(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, deleteOption, id)
+	return err
+}
+
+const deleteVoteSelections = `-- name: DeleteVoteSelections :exec
+DELETE FROM vote_selections WHERE vote_id = ?
+`
+
+func (q *Queries) DeleteVoteSelections(ctx context.Context, voteID int64) error {
+	_, err := q.db.ExecContext(ctx, deleteVoteSelections, voteID)
+	return err
+}
+
+const getCategory = `-- name: GetCategory :one
 SELECT id, name, vote_type, status, show_results, max_rank, created_at FROM categories WHERE id = ?
 `
 
-// Queries for sqlc code generation
 func (q *Queries) GetCategory(ctx context.Context, id int64) (Category, error) {
 	row := q.db.QueryRowContext(ctx, getCategory, id)
 	var i Category
@@ -25,6 +154,303 @@ func (q *Queries) GetCategory(ctx context.Context, id int64) (Category, error) {
 		&i.Status,
 		&i.ShowResults,
 		&i.MaxRank,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const getOption = `-- name: GetOption :one
+SELECT id, category_id, name, sort_order FROM options WHERE id = ?
+`
+
+func (q *Queries) GetOption(ctx context.Context, id int64) (Option, error) {
+	row := q.db.QueryRowContext(ctx, getOption, id)
+	var i Option
+	err := row.Scan(
+		&i.ID,
+		&i.CategoryID,
+		&i.Name,
+		&i.SortOrder,
+	)
+	return i, err
+}
+
+const getVoteByNickname = `-- name: GetVoteByNickname :one
+SELECT id, category_id, nickname, created_at FROM votes WHERE category_id = ? AND nickname = ?
+`
+
+type GetVoteByNicknameParams struct {
+	CategoryID int64  `json:"category_id"`
+	Nickname   string `json:"nickname"`
+}
+
+func (q *Queries) GetVoteByNickname(ctx context.Context, arg GetVoteByNicknameParams) (Vote, error) {
+	row := q.db.QueryRowContext(ctx, getVoteByNickname, arg.CategoryID, arg.Nickname)
+	var i Vote
+	err := row.Scan(
+		&i.ID,
+		&i.CategoryID,
+		&i.Nickname,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const listCategories = `-- name: ListCategories :many
+SELECT id, name, vote_type, status, show_results, max_rank, created_at FROM categories ORDER BY created_at DESC
+`
+
+func (q *Queries) ListCategories(ctx context.Context) ([]Category, error) {
+	rows, err := q.db.QueryContext(ctx, listCategories)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Category{}
+	for rows.Next() {
+		var i Category
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.VoteType,
+			&i.Status,
+			&i.ShowResults,
+			&i.MaxRank,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listOpenCategories = `-- name: ListOpenCategories :many
+SELECT id, name, vote_type, status, show_results, max_rank, created_at FROM categories WHERE status = 'open' ORDER BY created_at DESC
+`
+
+func (q *Queries) ListOpenCategories(ctx context.Context) ([]Category, error) {
+	rows, err := q.db.QueryContext(ctx, listOpenCategories)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Category{}
+	for rows.Next() {
+		var i Category
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.VoteType,
+			&i.Status,
+			&i.ShowResults,
+			&i.MaxRank,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listOptionsByCategory = `-- name: ListOptionsByCategory :many
+SELECT id, category_id, name, sort_order FROM options WHERE category_id = ? ORDER BY sort_order, id
+`
+
+func (q *Queries) ListOptionsByCategory(ctx context.Context, categoryID int64) ([]Option, error) {
+	rows, err := q.db.QueryContext(ctx, listOptionsByCategory, categoryID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Option{}
+	for rows.Next() {
+		var i Option
+		if err := rows.Scan(
+			&i.ID,
+			&i.CategoryID,
+			&i.Name,
+			&i.SortOrder,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listVotersByCategory = `-- name: ListVotersByCategory :many
+SELECT nickname FROM votes WHERE category_id = ? ORDER BY created_at
+`
+
+func (q *Queries) ListVotersByCategory(ctx context.Context, categoryID int64) ([]string, error) {
+	rows, err := q.db.QueryContext(ctx, listVotersByCategory, categoryID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []string{}
+	for rows.Next() {
+		var nickname string
+		if err := rows.Scan(&nickname); err != nil {
+			return nil, err
+		}
+		items = append(items, nickname)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const tallyRanked = `-- name: TallyRanked :many
+SELECT o.id, o.name,
+       COALESCE(SUM(?1 - vs.rank + 1), 0) as points,
+       COUNT(CASE WHEN vs.rank = 1 THEN 1 END) as first_place_votes
+FROM options o
+LEFT JOIN vote_selections vs ON vs.option_id = o.id
+WHERE o.category_id = ?2
+GROUP BY o.id
+ORDER BY points DESC, first_place_votes DESC, o.sort_order, o.id
+`
+
+type TallyRankedParams struct {
+	MaxRank    sql.NullInt64 `json:"max_rank"`
+	CategoryID int64         `json:"category_id"`
+}
+
+type TallyRankedRow struct {
+	ID              int64       `json:"id"`
+	Name            string      `json:"name"`
+	Points          interface{} `json:"points"`
+	FirstPlaceVotes int64       `json:"first_place_votes"`
+}
+
+func (q *Queries) TallyRanked(ctx context.Context, arg TallyRankedParams) ([]TallyRankedRow, error) {
+	rows, err := q.db.QueryContext(ctx, tallyRanked, arg.MaxRank, arg.CategoryID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []TallyRankedRow{}
+	for rows.Next() {
+		var i TallyRankedRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Points,
+			&i.FirstPlaceVotes,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const tallySimple = `-- name: TallySimple :many
+
+SELECT o.id, o.name, COUNT(vs.id) as votes
+FROM options o
+LEFT JOIN vote_selections vs ON vs.option_id = o.id
+WHERE o.category_id = ?1
+GROUP BY o.id
+ORDER BY votes DESC, o.sort_order, o.id
+`
+
+type TallySimpleRow struct {
+	ID    int64  `json:"id"`
+	Name  string `json:"name"`
+	Votes int64  `json:"votes"`
+}
+
+// Tally queries
+func (q *Queries) TallySimple(ctx context.Context, categoryID int64) ([]TallySimpleRow, error) {
+	rows, err := q.db.QueryContext(ctx, tallySimple, categoryID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []TallySimpleRow{}
+	for rows.Next() {
+		var i TallySimpleRow
+		if err := rows.Scan(&i.ID, &i.Name, &i.Votes); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const updateCategoryStatus = `-- name: UpdateCategoryStatus :exec
+UPDATE categories SET status = ? WHERE id = ?
+`
+
+type UpdateCategoryStatusParams struct {
+	Status string `json:"status"`
+	ID     int64  `json:"id"`
+}
+
+func (q *Queries) UpdateCategoryStatus(ctx context.Context, arg UpdateCategoryStatusParams) error {
+	_, err := q.db.ExecContext(ctx, updateCategoryStatus, arg.Status, arg.ID)
+	return err
+}
+
+const upsertVote = `-- name: UpsertVote :one
+
+INSERT INTO votes (category_id, nickname)
+VALUES (?, ?)
+ON CONFLICT(category_id, nickname) DO UPDATE SET created_at = CURRENT_TIMESTAMP
+RETURNING id, category_id, nickname, created_at
+`
+
+type UpsertVoteParams struct {
+	CategoryID int64  `json:"category_id"`
+	Nickname   string `json:"nickname"`
+}
+
+// Vote queries
+func (q *Queries) UpsertVote(ctx context.Context, arg UpsertVoteParams) (Vote, error) {
+	row := q.db.QueryRowContext(ctx, upsertVote, arg.CategoryID, arg.Nickname)
+	var i Vote
+	err := row.Scan(
+		&i.ID,
+		&i.CategoryID,
+		&i.Nickname,
 		&i.CreatedAt,
 	)
 	return i, err
