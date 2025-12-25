@@ -416,6 +416,29 @@ func (q *Queries) TallySimple(ctx context.Context, categoryID int64) ([]TallySim
 	return items, nil
 }
 
+const updateCategory = `-- name: UpdateCategory :exec
+UPDATE categories SET name = ?, vote_type = ?, show_results = ?, max_rank = ? WHERE id = ?
+`
+
+type UpdateCategoryParams struct {
+	Name        string        `json:"name"`
+	VoteType    string        `json:"vote_type"`
+	ShowResults string        `json:"show_results"`
+	MaxRank     sql.NullInt64 `json:"max_rank"`
+	ID          int64         `json:"id"`
+}
+
+func (q *Queries) UpdateCategory(ctx context.Context, arg UpdateCategoryParams) error {
+	_, err := q.db.ExecContext(ctx, updateCategory,
+		arg.Name,
+		arg.VoteType,
+		arg.ShowResults,
+		arg.MaxRank,
+		arg.ID,
+	)
+	return err
+}
+
 const updateCategoryStatus = `-- name: UpdateCategoryStatus :exec
 UPDATE categories SET status = ? WHERE id = ?
 `

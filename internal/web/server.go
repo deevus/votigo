@@ -513,6 +513,51 @@ func (s *Server) handleAdminCategoryEdit(w http.ResponseWriter, r *http.Request,
 
 	options, _ := s.queries.ListOptionsByCategory(r.Context(), id)
 
+	if r.Method == http.MethodPost {
+		r.ParseForm()
+		name := strings.TrimSpace(r.FormValue("name"))
+		voteType := r.FormValue("vote_type")
+		showResults := r.FormValue("show_results")
+		maxRankStr := r.FormValue("max_rank")
+
+		if name == "" {
+			s.render(w, "admin/category.html", map[string]any{
+				"Category": cat,
+				"Options":  options,
+				"Error":    "Name is required",
+			})
+			return
+		}
+
+		var maxRank sql.NullInt64
+		if voteType == "ranked" {
+			mr, _ := strconv.ParseInt(maxRankStr, 10, 64)
+			if mr <= 0 {
+				mr = 3
+			}
+			maxRank = sql.NullInt64{Int64: mr, Valid: true}
+		}
+
+		err := s.queries.UpdateCategory(r.Context(), db.UpdateCategoryParams{
+			Name:        name,
+			VoteType:    voteType,
+			ShowResults: showResults,
+			MaxRank:     maxRank,
+			ID:          id,
+		})
+		if err != nil {
+			s.render(w, "admin/category.html", map[string]any{
+				"Category": cat,
+				"Options":  options,
+				"Error":    "Failed to update category",
+			})
+			return
+		}
+
+		http.Redirect(w, r, "/admin", http.StatusSeeOther)
+		return
+	}
+
 	s.render(w, "admin/category.html", map[string]any{
 		"Category": cat,
 		"Options":  options,
@@ -527,7 +572,13 @@ func (s *Server) handleAdminOpen(w http.ResponseWriter, r *http.Request, id int6
 
 	count, _ := s.queries.CountOptionsByCategory(r.Context(), id)
 	if count == 0 {
-		http.Redirect(w, r, "/admin", http.StatusSeeOther)
+		cat, _ := s.queries.GetCategory(r.Context(), id)
+		options, _ := s.queries.ListOptionsByCategory(r.Context(), id)
+		s.render(w, "admin/category.html", map[string]any{
+			"Category": cat,
+			"Options":  options,
+			"Error":    "Cannot open voting: add at least one option first",
+		})
 		return
 	}
 

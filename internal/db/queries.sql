@@ -19,6 +19,9 @@ SELECT * FROM categories WHERE status = 'open' ORDER BY created_at DESC;
 -- name: UpdateCategoryStatus :exec
 UPDATE categories SET status = ? WHERE id = ?;
 
+-- name: UpdateCategory :exec
+UPDATE categories SET name = ?, vote_type = ?, show_results = ?, max_rank = ? WHERE id = ?;
+
 -- name: DeleteCategory :exec
 DELETE FROM categories WHERE id = ?;
 
