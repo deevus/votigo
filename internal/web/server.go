@@ -73,7 +73,6 @@ func NewServer(database *sql.DB, adminPassword string, uiMode UIMode) (*Server, 
 	if uiMode == UIModeModern {
 		partialFiles := []string{
 			"partials/vote-form.html",
-			"partials/vote-success.html",
 			"partials/option-row.html",
 			"partials/results-table.html",
 			"partials/status-badge.html",
