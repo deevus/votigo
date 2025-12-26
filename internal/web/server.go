@@ -669,7 +669,7 @@ func (s *Server) handleAdminCategoryNew(w http.ResponseWriter, r *http.Request) 
 			})
 			return
 		}
-		http.Redirect(w, r, "/admin", http.StatusSeeOther)
+		http.Redirect(w, r, AdminURL(), http.StatusSeeOther)
 		return
 	}
 
@@ -726,7 +726,7 @@ func (s *Server) handleAdminCategoryEdit(w http.ResponseWriter, r *http.Request,
 			return
 		}
 
-		http.Redirect(w, r, "/admin", http.StatusSeeOther)
+		http.Redirect(w, r, AdminURL(), http.StatusSeeOther)
 		return
 	}
 
@@ -770,7 +770,7 @@ func (s *Server) handleAdminOpen(w http.ResponseWriter, r *http.Request, id int6
 		return
 	}
 
-	http.Redirect(w, r, "/admin", http.StatusSeeOther)
+	http.Redirect(w, r, AdminURL(), http.StatusSeeOther)
 }
 
 func (s *Server) handleAdminClose(w http.ResponseWriter, r *http.Request, id int64) {
@@ -790,7 +790,7 @@ func (s *Server) handleAdminClose(w http.ResponseWriter, r *http.Request, id int
 		return
 	}
 
-	http.Redirect(w, r, "/admin", http.StatusSeeOther)
+	http.Redirect(w, r, AdminURL(), http.StatusSeeOther)
 }
 
 func (s *Server) handleAdminArchive(w http.ResponseWriter, r *http.Request, id int64) {
@@ -811,7 +811,7 @@ func (s *Server) handleAdminArchive(w http.ResponseWriter, r *http.Request, id i
 		return
 	}
 
-	http.Redirect(w, r, "/admin", http.StatusSeeOther)
+	http.Redirect(w, r, AdminURL(), http.StatusSeeOther)
 }
 
 func (s *Server) handleAdminAddOption(w http.ResponseWriter, r *http.Request, categoryID int64) {
@@ -827,7 +827,7 @@ func (s *Server) handleAdminAddOption(w http.ResponseWriter, r *http.Request, ca
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		http.Redirect(w, r, fmt.Sprintf("/admin/category/%d", categoryID), http.StatusSeeOther)
+		http.Redirect(w, r, AdminCategoryURL(categoryID), http.StatusSeeOther)
 		return
 	}
 
@@ -848,7 +848,7 @@ func (s *Server) handleAdminAddOption(w http.ResponseWriter, r *http.Request, ca
 		return
 	}
 
-	http.Redirect(w, r, fmt.Sprintf("/admin/category/%d", categoryID), http.StatusSeeOther)
+	http.Redirect(w, r, AdminCategoryURL(categoryID), http.StatusSeeOther)
 }
 
 func (s *Server) handleAdminDeleteOption(w http.ResponseWriter, r *http.Request) {
@@ -875,7 +875,7 @@ func (s *Server) handleAdminDeleteOption(w http.ResponseWriter, r *http.Request)
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
-		http.Redirect(w, r, "/admin", http.StatusSeeOther)
+		http.Redirect(w, r, AdminURL(), http.StatusSeeOther)
 		return
 	}
 
@@ -887,5 +887,5 @@ func (s *Server) handleAdminDeleteOption(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	http.Redirect(w, r, fmt.Sprintf("/admin/category/%d", opt.CategoryID), http.StatusSeeOther)
+	http.Redirect(w, r, AdminCategoryURL(opt.CategoryID), http.StatusSeeOther)
 }
