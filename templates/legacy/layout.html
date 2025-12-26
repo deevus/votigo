@@ -12,6 +12,8 @@
     }
     h1 { color: #333; margin-top: 0; }
     h2 { color: #666; }
+
+    /* Buttons */
     .btn {
       padding: 8px 16px;
       background: #4CAF50;
@@ -25,6 +27,34 @@
     .btn:hover {
       background: #45a049;
     }
+    .btn-amber {
+      padding: 8px 16px;
+      background: #f59e0b;
+      color: white;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      font-weight: bold;
+    }
+    .btn-red {
+      padding: 4px 8px;
+      background: #ef4444;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 11px;
+    }
+    .btn-gray {
+      padding: 4px 8px;
+      background: #666;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 11px;
+    }
+
+    /* Tables */
     .data {
       border-collapse: collapse;
       width: 100%;
@@ -38,6 +68,8 @@
       background: #eee;
       font-weight: bold;
     }
+
+    /* Messages */
     .error {
       background-color: #fce8e8;
       color: #ef4444;
@@ -52,6 +84,135 @@
       padding: 10px;
       font-weight: bold;
     }
+    .success-box {
+      border: 2px solid #22c55e;
+      background-color: #e8f5e9;
+      text-align: center;
+      padding: 20px;
+    }
+    .success-checkmark {
+      font-size: 48px;
+      color: #22c55e;
+      margin-bottom: 10px;
+    }
+
+    /* Headers */
+    .header-green {
+      color: #22c55e;
+      font-family: 'Courier New', Courier, monospace;
+      margin: 20px 0 10px 0;
+    }
+    .header-amber {
+      color: #f59e0b;
+      font-family: 'Courier New', Courier, monospace;
+      margin: 0;
+    }
+
+    /* Badges */
+    .badge-green {
+      background-color: #e8f5e9;
+      color: #22c55e;
+      border-right: 2px solid #22c55e;
+      text-align: center;
+    }
+    .badge-amber {
+      background-color: #fff3cd;
+      color: #f59e0b;
+      border-right: 2px solid #f59e0b;
+      text-align: center;
+    }
+    .badge-draft {
+      background-color: #404040;
+      color: #999;
+      padding: 4px 8px;
+      border: 1px solid #404040;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+    .badge-open {
+      background-color: #e8f5e9;
+      color: #22c55e;
+      padding: 4px 8px;
+      border: 1px solid #22c55e;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+    .badge-closed {
+      background-color: #fce8e8;
+      color: #ef4444;
+      padding: 4px 8px;
+      border: 1px solid #ef4444;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+    .badge-archived {
+      background-color: #f5f5f5;
+      color: #666;
+      padding: 4px 8px;
+      border: 1px solid #404040;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+    .rank-badge {
+      display: inline-block;
+      width: 40px;
+      height: 30px;
+      background-color: #fff3cd;
+      border: 1px solid #f59e0b;
+      text-align: center;
+      line-height: 30px;
+      color: #f59e0b;
+      font-weight: bold;
+      margin-right: 10px;
+    }
+
+    /* Text */
+    .muted-text {
+      color: #999;
+      font-size: 12px;
+    }
+    .muted-text-small {
+      color: #999;
+      font-size: 11px;
+    }
+
+    /* Navigation */
+    .nav-link {
+      color: #999;
+      text-decoration: none;
+    }
+    .logo {
+      color: #22c55e;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 14px;
+    }
+    .footer-text {
+      color: #999;
+      font-size: 11px;
+    }
+
+    /* Forms */
+    .form-input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+    }
+    .option-box {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin: 5px 0;
+      background-color: #fafafa;
+    }
+
+    /* Empty states */
+    .empty-state {
+      border: 1px solid #ccc;
+      background-color: #fafafa;
+      text-align: center;
+      padding: 20px;
+    }
+
+    /* Links */
     a { color: #0066cc; text-decoration: none; }
     a:hover { color: #004499; text-decoration: underline; }
     input, select { padding: 4px; }
@@ -62,12 +223,12 @@
   <table width="100%" cellpadding="8" cellspacing="0" bgcolor="#171717" border="0" style="border-bottom: 2px solid #404040;">
     <tr>
       <td width="50%">
-        <b style="color: #22c55e; font-family: 'Courier New', Courier, monospace; font-size: 14px;">VOTIGO</b>
+        <b class="logo">VOTIGO</b>
       </td>
       <td width="50%" align="right">
-        <a href="/" style="color: #999; text-decoration: none;">HOME</a> |
-        <a href="/results" style="color: #999; text-decoration: none;">RESULTS</a> |
-        <a href="/admin" style="color: #999; text-decoration: none;">ADMIN</a>
+        <a href="/" class="nav-link">HOME</a> |
+        <a href="/results" class="nav-link">RESULTS</a> |
+        <a href="/admin" class="nav-link">ADMIN</a>
       </td>
     </tr>
   </table>
@@ -86,7 +247,7 @@
   <!-- Footer -->
   <table width="100%" cellpadding="12" cellspacing="0" border="0" style="border-top: 1px solid #ccc; margin-top: 20px;">
     <tr>
-      <td align="center" style="color: #999; font-size: 11px;">
+      <td align="center" class="footer-text">
         VOTIGO · Palms Arcade · 2025
       </td>
     </tr>

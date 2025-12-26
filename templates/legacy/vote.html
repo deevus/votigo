@@ -3,10 +3,8 @@
   <tr>
     <td>
       <p style="margin: 0 0 10px 0;"><a href="/">← Back</a></p>
-      <h1 style="color: #f59e0b; font-family: 'Courier New', Courier, monospace; margin: 0;">
-        {{.Category.Name}}
-      </h1>
-      <p style="color: #999; font-size: 12px; margin: 5px 0 0 0;">
+      <h1 class="header-amber">{{.Category.Name}}</h1>
+      <p class="muted-text" style="margin: 5px 0 0 0;">
         {{if eq .Category.VoteType "single"}}Select one option
         {{else if eq .Category.VoteType "approval"}}Select all that apply
         {{else if eq .Category.VoteType "ranked"}}Rank your top {{.MaxRank}} choices
@@ -18,10 +16,10 @@
 
 {{if .Success}}
 <!-- Success state -->
-<table width="100%" cellpadding="20" cellspacing="0" border="0" style="border: 2px solid #22c55e; background-color: #e8f5e9;">
+<table width="100%" cellpadding="20" cellspacing="0" border="0" class="success-box">
   <tr>
-    <td align="center">
-      <div style="font-size: 48px; color: #22c55e; margin-bottom: 10px;">✓</div>
+    <td>
+      <div class="success-checkmark">✓</div>
       <b style="color: #22c55e; font-size: 16px;">VOTE RECORDED!</b>
       <p style="color: #666; margin: 10px 0;">Thank you for voting</p>
       <p style="margin: 10px 0 0 0;"><a href="/">← Back to all votes</a></p>
@@ -39,7 +37,7 @@
     <tr>
       <td>
         <p><b>Your nickname:</b></p>
-        <input type="text" name="nickname" value="{{.Nickname}}" size="40" style="width: 100%; padding: 8px; border: 1px solid #ccc;">
+        <input type="text" name="nickname" value="{{.Nickname}}" size="40" class="form-input">
       </td>
     </tr>
   </table>
@@ -49,7 +47,7 @@
   {{if eq .Category.VoteType "single"}}
   <!-- Single choice (radio) -->
   {{range .Options}}
-  <p style="border: 1px solid #ccc; padding: 10px; margin: 5px 0; background-color: #fafafa;">
+  <p class="option-box">
     <input type="radio" name="choice" value="{{.ID}}" id="opt{{.ID}}">
     <label for="opt{{.ID}}">{{.Name}}</label>
   </p>
@@ -58,7 +56,7 @@
   {{else if eq .Category.VoteType "approval"}}
   <!-- Approval (checkboxes) -->
   {{range .Options}}
-  <p style="border: 1px solid #ccc; padding: 10px; margin: 5px 0; background-color: #fafafa;">
+  <p class="option-box">
     <input type="checkbox" name="choice" value="{{.ID}}" id="opt{{.ID}}">
     <label for="opt{{.ID}}">{{.Name}}</label>
   </p>
@@ -68,10 +66,8 @@
   <!-- Ranked (dropdowns) -->
   {{range $i, $e := .Ranks}}
   {{$rank := add $i 1}}
-  <p style="border: 1px solid #ccc; padding: 10px; margin: 5px 0; background-color: #fafafa;">
-    <span style="display: inline-block; width: 40px; height: 30px; background-color: #fff3cd; border: 1px solid #f59e0b; text-align: center; line-height: 30px; color: #f59e0b; font-weight: bold; margin-right: 10px;">
-      #{{$rank}}
-    </span>
+  <p class="option-box">
+    <span class="rank-badge">#{{$rank}}</span>
     <select name="rank{{$rank}}" id="rank{{$rank}}" style="width: 400px; padding: 6px;">
       <option value="">Select choice #{{$rank}}</option>
       {{range $.Options}}

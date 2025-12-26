@@ -2,10 +2,8 @@
 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 20px;">
   <tr>
     <td align="center">
-      <h1 style="color: #22c55e; font-family: 'Courier New', Courier, monospace; margin: 20px 0 10px 0;">
-        PALMS ARCADE
-      </h1>
-      <p style="color: #999; font-size: 12px; margin: 0 0 20px 0;">Cast your votes below</p>
+      <h1 class="header-green">PALMS ARCADE</h1>
+      <p class="muted-text" style="margin: 0 0 20px 0;">Cast your votes below</p>
     </td>
   </tr>
 </table>
@@ -14,12 +12,12 @@
 {{range .Categories}}
 <table class="data" style="margin-bottom: 8px;">
   <tr>
-    <td width="60" align="center" bgcolor="#e8f5e9" style="border-right: 2px solid #22c55e;">
-      <b style="color: #22c55e;">{{.ID}}</b>
+    <td width="60" class="badge-green">
+      <b>{{.ID}}</b>
     </td>
     <td>
       <b>{{.Name}}</b><br>
-      <span style="color: #999; font-size: 11px; text-transform: uppercase;">{{.VoteType}} VOTE</span>
+      <span class="muted-text-small" style="text-transform: uppercase;">{{.VoteType}} VOTE</span>
     </td>
     <td width="80" align="right">
       <a href="/vote/{{.ID}}" class="btn" style="font-size: 11px; padding: 6px 12px;">VOTE →</a>
@@ -28,11 +26,11 @@
 </table>
 {{end}}
 {{else}}
-<table width="100%" cellpadding="20" cellspacing="0" border="0" style="border: 1px solid #ccc; background-color: #fafafa;">
+<table width="100%" cellpadding="20" cellspacing="0" border="0" class="empty-state">
   <tr>
-    <td align="center">
+    <td>
       <p style="color: #999; margin: 0;">No open votes at the moment</p>
-      <p style="color: #999; font-size: 11px; margin: 10px 0 0 0;">Check back soon!</p>
+      <p class="muted-text-small" style="margin: 10px 0 0 0;">Check back soon!</p>
     </td>
   </tr>
 </table>
