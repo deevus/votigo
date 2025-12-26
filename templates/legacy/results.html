@@ -1,37 +1,48 @@
 {{define "content"}}
-<h1>Results: {{.Category.Name}}</h1>
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 20px;">
+  <tr>
+    <td>
+      <p style="margin: 0 0 10px 0;"><a href="/results">← Back to all results</a></p>
+      <h1 class="header-green">{{.Category.Name}}</h1>
+      <p class="muted-text" style="margin: 5px 0 0 0;">
+        {{if eq .Category.Status "open"}}LIVE RESULTS{{else}}FINAL RESULTS{{end}}
+        · {{.Category.VoteType}} vote
+      </p>
+    </td>
+  </tr>
+</table>
 
-{{if .NotVisible}}
-<p>Results are not available yet. Check back after voting closes.</p>
-{{else}}
-
-<p>Total votes: {{.VoteCount}}</p>
-
+{{if .Results}}
 <table class="data">
   <tr>
-    <th>Rank</th>
     <th>Option</th>
-    {{if eq .Category.VoteType "ranked"}}
-    <th>Points</th>
-    <th>1st Place</th>
-    {{else}}
-    <th>Votes</th>
-    {{end}}
+    <th width="80" align="center">Votes</th>
+    <th width="250">Distribution</th>
   </tr>
-  {{range $i, $r := .Results}}
+  {{range .Results}}
   <tr>
-    <td>{{add $i 1}}</td>
-    <td>{{$r.Name}}</td>
-    {{if eq $.Category.VoteType "ranked"}}
-    <td>{{$r.Points}}</td>
-    <td>{{$r.FirstPlace}}</td>
-    {{else}}
-    <td>{{$r.Votes}}</td>
-    {{end}}
+    <td><b>{{.OptionName}}</b></td>
+    <td align="center"><b style="color: #22c55e;">{{.VoteCount}}</b></td>
+    <td>
+      {{if gt .Percentage 0}}
+      <table width="{{.Percentage}}%" cellpadding="2" cellspacing="0" border="0" bgcolor="#22c55e" style="display: inline-table; vertical-align: middle;">
+        <tr><td>&nbsp;</td></tr>
+      </table>
+      {{end}}
+      <span style="font-size: 11px; color: #999; margin-left: 8px;">{{.Percentage}}%</span>
+    </td>
   </tr>
   {{end}}
 </table>
+
+<p style="margin-top: 20px;" class="muted-text-small">
+  Total votes: <b>{{.TotalVotes}}</b>
+</p>
+{{else}}
+<p style="color: #999;">No votes yet.</p>
 {{end}}
 
-<p><a href="/">Back to home</a></p>
+<p style="margin-top: 20px;">
+  <a href="/">Back to home</a>
+</p>
 {{end}}

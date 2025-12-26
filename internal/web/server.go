@@ -422,13 +422,12 @@ func (s *Server) handleResults(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	voteCount, _ := s.queries.CountVotesByCategory(r.Context(), id)
+	totalVotes, _ := s.queries.CountVotesByCategory(r.Context(), id)
 
 	type Result struct {
-		Name       string
-		Votes      int64
-		Points     int64
-		FirstPlace int64
+		OptionName string
+		VoteCount  int64
+		Percentage int64
 	}
 	var results []Result
 
@@ -456,10 +455,14 @@ func (s *Server) handleResults(w http.ResponseWriter, r *http.Request) {
 					points = int64(v)
 				}
 			}
+			percentage := int64(0)
+			if totalVotes > 0 {
+				percentage = (points * 100) / (totalVotes * maxRank.Int64)
+			}
 			results = append(results, Result{
-				Name:       row.Name,
-				Points:     points,
-				FirstPlace: row.FirstPlaceVotes,
+				OptionName: row.Name,
+				VoteCount:  points,
+				Percentage: percentage,
 			})
 		}
 	} else {
@@ -469,17 +472,22 @@ func (s *Server) handleResults(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		for _, row := range rows {
+			percentage := int64(0)
+			if totalVotes > 0 {
+				percentage = (row.Votes * 100) / totalVotes
+			}
 			results = append(results, Result{
-				Name:  row.Name,
-				Votes: row.Votes,
+				OptionName: row.Name,
+				VoteCount:  row.Votes,
+				Percentage: percentage,
 			})
 		}
 	}
 
 	s.render(w, "results.html", map[string]any{
-		"Category":  cat,
-		"VoteCount": voteCount,
-		"Results":   results,
+		"Category":   cat,
+		"TotalVotes": totalVotes,
+		"Results":    results,
 	})
 }
 
