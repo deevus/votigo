@@ -54,6 +54,22 @@
     <label for="type_ranked">Ranked Choice</label> - Voters rank their top 3 choices
   </p>
 
+  <p style="margin-top: 20px;"><b>Max Rank:</b></p>
+  <p style="margin-bottom: 20px;">
+    <input type="number" name="max_rank" value="{{if .Category.MaxRank.Valid}}{{.Category.MaxRank.Int64}}{{else}}3{{end}}" min="1" size="5" class="form-input" style="width: 80px;">
+    <span style="color: #999; margin-left: 10px;">For ranked voting (default: 3)</span>
+  </p>
+
+  <p><b>Show Results:</b></p>
+  <p class="option-box">
+    <input type="radio" name="show_results" value="after_close" id="results_after" {{if or (not .Category.ID) (eq .Category.ShowResults "after_close")}}checked{{end}}>
+    <label for="results_after">After Close</label> - Results visible only after voting closes
+  </p>
+  <p class="option-box">
+    <input type="radio" name="show_results" value="live" id="results_live" {{if eq .Category.ShowResults "live"}}checked{{end}}>
+    <label for="results_live">Live</label> - Results visible while voting is open
+  </p>
+
   <p style="margin-top: 20px;">
     <input type="submit" value="{{if .Category.ID}}Save Changes{{else}}Create Poll{{end}}" class="btn">
   </p>
@@ -76,7 +92,7 @@
     <td>{{.ID}}</td>
     <td>{{.Name}}</td>
     <td align="center">
-      <form method="POST" action="/admin/category/{{$.Category.ID}}/option/{{.ID}}/remove" style="display:inline;">
+      <form method="POST" action="/admin/option/{{.ID}}" style="display:inline;">
         <input type="submit" value="Remove" class="btn-red">
       </form>
     </td>
@@ -87,12 +103,12 @@
 <p style="color: #999;">No options yet. Add some below.</p>
 {{end}}
 
-<form method="POST" action="/admin/category/{{.Category.ID}}/option/add">
+<form method="POST" action="/admin/category/{{.Category.ID}}/option">
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
     <tr>
       <td width="120"><b>Add Option:</b></td>
       <td>
-        <input type="text" name="name" placeholder="Option name..." size="40" style="padding: 8px; border: 1px solid #404040; width: 300px; background-color: #0a0a0a; color: #f5f5f5;">
+        <input type="text" name="option_name" placeholder="Option name..." size="40" style="padding: 8px; border: 1px solid #404040; width: 300px; background-color: #0a0a0a; color: #f5f5f5;">
       </td>
       <td width="100">
         <input type="submit" value="Add" class="btn" style="padding: 8px 16px;">
