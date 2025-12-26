@@ -1,73 +1,104 @@
 {{define "content"}}
-<h1>{{if .Category}}Edit Poll{{else}}New Poll{{end}}</h1>
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 20px;">
+  <tr>
+    <td>
+      <p style="margin: 0 0 10px 0;"><a href="/admin">← Back to dashboard</a></p>
+      <h1 class="header-green">{{if .Category.ID}}Edit Poll{{else}}New Poll{{end}}</h1>
+      {{if .Category.ID}}
+      <p class="muted-text" style="margin: 5px 0 0 0;">
+        ID: {{.Category.ID}} ·
+        {{if eq .Category.Status "draft"}}
+        <span class="badge-draft">DRAFT</span>
+        {{else if eq .Category.Status "open"}}
+        <span class="badge-open">OPEN</span>
+        {{else if eq .Category.Status "closed"}}
+        <span class="badge-closed">CLOSED</span>
+        {{else if eq .Category.Status "archived"}}
+        <span class="badge-archived">ARCHIVED</span>
+        {{end}}
+      </p>
+      {{end}}
+    </td>
+  </tr>
+</table>
 
 {{if .Error}}
 <p class="error">{{.Error}}</p>
 {{end}}
 
-<form method="POST">
-  <p>
-    <label for="name"><b>Name:</b></label><br>
-    <input type="text" name="name" id="name" value="{{if .Category}}{{.Category.Name}}{{end}}" size="40">
+{{if .Success}}
+<p class="success">{{.Success}}</p>
+{{end}}
+
+<form method="POST" action="{{if .Category.ID}}/admin/category/{{.Category.ID}}{{else}}/admin/category/new{{end}}">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 20px;">
+    <tr>
+      <td width="120"><b>Poll Name:</b></td>
+      <td>
+        <input type="text" name="name" value="{{.Category.Name}}" size="50" class="form-input">
+      </td>
+    </tr>
+  </table>
+
+  <p><b>Vote Type:</b></p>
+  <p class="option-box">
+    <input type="radio" name="vote_type" value="single" id="type_single" {{if eq .Category.VoteType "single"}}checked{{end}}>
+    <label for="type_single">Single Choice</label> - Voters select one option
+  </p>
+  <p class="option-box">
+    <input type="radio" name="vote_type" value="approval" id="type_approval" {{if eq .Category.VoteType "approval"}}checked{{end}}>
+    <label for="type_approval">Approval Voting</label> - Voters can select multiple options
+  </p>
+  <p class="option-box">
+    <input type="radio" name="vote_type" value="ranked" id="type_ranked" {{if eq .Category.VoteType "ranked"}}checked{{end}}>
+    <label for="type_ranked">Ranked Choice</label> - Voters rank their top 3 choices
   </p>
 
-  <p>
-    <label for="vote_type"><b>Vote Type:</b></label><br>
-    <select name="vote_type" id="vote_type">
-      <option value="single" {{if and .Category (eq .Category.VoteType "single")}}selected{{end}}>Single Choice</option>
-      <option value="approval" {{if and .Category (eq .Category.VoteType "approval")}}selected{{end}}>Approval</option>
-      <option value="ranked" {{if and .Category (eq .Category.VoteType "ranked")}}selected{{end}}>Ranked</option>
-    </select>
-  </p>
-
-  <p>
-    <label for="max_rank"><b>Max Rank (for ranked voting):</b></label><br>
-    <input type="text" name="max_rank" id="max_rank" value="{{if and .Category .Category.MaxRank.Valid}}{{.Category.MaxRank.Int64}}{{else}}3{{end}}" size="5">
-  </p>
-
-  <p>
-    <label for="show_results"><b>Show Results:</b></label><br>
-    <select name="show_results" id="show_results">
-      <option value="after_close" {{if and .Category (eq .Category.ShowResults "after_close")}}selected{{end}}>After Close</option>
-      <option value="live" {{if and .Category (eq .Category.ShowResults "live")}}selected{{end}}>Live</option>
-    </select>
-  </p>
-
-  <p><input type="submit" value="Save" class="btn"></p>
-</form>
-
-{{if .Category}}
-<h2>Options</h2>
-<form method="POST" action="/admin/category/{{.Category.ID}}/option">
-  <p>
-    <input type="text" name="option_name" placeholder="New option name" size="30">
-    <input type="submit" value="Add Option" class="btn">
+  <p style="margin-top: 20px;">
+    <input type="submit" value="{{if .Category.ID}}Save Changes{{else}}Create Poll{{end}}" class="btn">
   </p>
 </form>
+
+{{if .Category.ID}}
+<hr style="margin: 30px 0; border: none; border-top: 1px solid #404040;">
+
+<h2 class="header-green">Options</h2>
 
 {{if .Options}}
-<table class="data">
+<table class="data" style="margin-bottom: 20px;">
   <tr>
-    <th>ID</th>
-    <th>Name</th>
-    <th>Action</th>
+    <th width="40">ID</th>
+    <th>Option Name</th>
+    <th width="80">Action</th>
   </tr>
   {{range .Options}}
   <tr>
     <td>{{.ID}}</td>
     <td>{{.Name}}</td>
-    <td>
-      <form method="POST" action="/admin/option/{{.ID}}/delete" style="display:inline">
-        <input type="submit" value="Delete">
+    <td align="center">
+      <form method="POST" action="/admin/category/{{$.Category.ID}}/option/{{.ID}}/remove" style="display:inline;">
+        <input type="submit" value="Remove" class="btn-red">
       </form>
     </td>
   </tr>
   {{end}}
 </table>
 {{else}}
-<p>No options yet.</p>
-{{end}}
+<p style="color: #999;">No options yet. Add some below.</p>
 {{end}}
 
-<p><a href="/admin">Back to dashboard</a></p>
+<form method="POST" action="/admin/category/{{.Category.ID}}/option/add">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr>
+      <td width="120"><b>Add Option:</b></td>
+      <td>
+        <input type="text" name="name" placeholder="Option name..." size="40" style="padding: 8px; border: 1px solid #404040; width: 300px; background-color: #0a0a0a; color: #f5f5f5;">
+      </td>
+      <td width="100">
+        <input type="submit" value="Add" class="btn" style="padding: 8px 16px;">
+      </td>
+    </tr>
+  </table>
+</form>
+{{end}}
 {{end}}

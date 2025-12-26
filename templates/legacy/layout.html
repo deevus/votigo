@@ -8,10 +8,11 @@
       font-family: Arial, Helvetica, sans-serif;
       margin: 0;
       padding: 0;
-      background: #f5f5f5;
+      background: #0a0a0a;
+      color: #f5f5f5;
     }
-    h1 { color: #333; margin-top: 0; }
-    h2 { color: #666; }
+    h1 { color: #f5f5f5; margin-top: 0; }
+    h2 { color: #f5f5f5; }
 
     /* Buttons */
     .btn {
@@ -60,25 +61,26 @@
       width: 100%;
     }
     .data td, .data th {
-      border: 1px solid #ccc;
+      border: 1px solid #404040;
       padding: 8px;
       text-align: left;
     }
     .data th {
-      background: #eee;
+      background: #0a0a0a;
+      color: #f5f5f5;
       font-weight: bold;
     }
 
     /* Messages */
     .error {
-      background-color: #fce8e8;
+      background-color: #2a0a0a;
       color: #ef4444;
       border: 1px solid #ef4444;
       padding: 10px;
       font-weight: bold;
     }
     .success {
-      background-color: #e8f5e9;
+      background-color: #0a2a0a;
       color: #22c55e;
       border: 1px solid #22c55e;
       padding: 10px;
@@ -86,7 +88,7 @@
     }
     .success-box {
       border: 2px solid #22c55e;
-      background-color: #e8f5e9;
+      background-color: #0a2a0a;
       text-align: center;
       padding: 20px;
     }
@@ -110,19 +112,19 @@
 
     /* Badges */
     .badge-green {
-      background-color: #e8f5e9;
+      background-color: #0a2a0a;
       color: #22c55e;
       border-right: 2px solid #22c55e;
       text-align: center;
     }
     .badge-amber {
-      background-color: #fff3cd;
+      background-color: #2a1f0a;
       color: #f59e0b;
       border-right: 2px solid #f59e0b;
       text-align: center;
     }
     .badge-draft {
-      background-color: #404040;
+      background-color: #171717;
       color: #999;
       padding: 4px 8px;
       border: 1px solid #404040;
@@ -130,7 +132,7 @@
       text-transform: uppercase;
     }
     .badge-open {
-      background-color: #e8f5e9;
+      background-color: #0a2a0a;
       color: #22c55e;
       padding: 4px 8px;
       border: 1px solid #22c55e;
@@ -138,7 +140,7 @@
       text-transform: uppercase;
     }
     .badge-closed {
-      background-color: #fce8e8;
+      background-color: #2a0a0a;
       color: #ef4444;
       padding: 4px 8px;
       border: 1px solid #ef4444;
@@ -146,8 +148,8 @@
       text-transform: uppercase;
     }
     .badge-archived {
-      background-color: #f5f5f5;
-      color: #666;
+      background-color: #171717;
+      color: #999;
       padding: 4px 8px;
       border: 1px solid #404040;
       font-size: 11px;
@@ -157,7 +159,7 @@
       display: inline-block;
       width: 40px;
       height: 30px;
-      background-color: #fff3cd;
+      background-color: #2a1f0a;
       border: 1px solid #f59e0b;
       text-align: center;
       line-height: 30px;
@@ -195,27 +197,34 @@
     .form-input {
       width: 100%;
       padding: 8px;
-      border: 1px solid #ccc;
+      border: 1px solid #404040;
+      background-color: #0a0a0a;
+      color: #f5f5f5;
     }
     .option-box {
-      border: 1px solid #ccc;
+      border: 1px solid #404040;
       padding: 10px;
       margin: 5px 0;
-      background-color: #fafafa;
+      background-color: #0a0a0a;
     }
 
     /* Empty states */
     .empty-state {
-      border: 1px solid #ccc;
-      background-color: #fafafa;
+      border: 1px solid #404040;
+      background-color: #0a0a0a;
       text-align: center;
       padding: 20px;
     }
 
     /* Links */
-    a { color: #0066cc; text-decoration: none; }
-    a:hover { color: #004499; text-decoration: underline; }
-    input, select { padding: 4px; }
+    a { color: #22c55e; text-decoration: none; }
+    a:hover { color: #16a34a; text-decoration: underline; }
+    input, select {
+      padding: 4px;
+      background-color: #0a0a0a;
+      color: #f5f5f5;
+      border: 1px solid #404040;
+    }
   </style>
 </head>
 <body>
@@ -237,7 +246,7 @@
   <table border="0" cellpadding="0" cellspacing="0" width="100%">
     <tr>
       <td width="50%">&nbsp;</td>
-      <td width="600" bgcolor="#ffffff" style="border: 1px solid #ccc; padding: 20px;">
+      <td width="600" bgcolor="#171717" style="border: 2px solid #404040; padding: 20px;">
         {{template "content" .}}
       </td>
       <td width="50%">&nbsp;</td>
@@ -245,7 +254,7 @@
   </table>
 
   <!-- Footer -->
-  <table width="100%" cellpadding="12" cellspacing="0" border="0" style="border-top: 1px solid #ccc; margin-top: 20px;">
+  <table width="100%" cellpadding="12" cellspacing="0" border="0" style="border-top: 2px solid #404040; margin-top: 20px;">
     <tr>
       <td align="center" class="footer-text">
         VOTIGO · Palms Arcade · 2025
