@@ -856,7 +856,7 @@ func (s *Server) handleAdminAddOption(w http.ResponseWriter, r *http.Request, ca
 		return
 	}
 
-	http.Redirect(w, r, AdminCategoryURL(categoryID), http.StatusSeeOther)
+	http.Redirect(w, r, AdminCategoryURL(categoryID)+"#options", http.StatusSeeOther)
 }
 
 func (s *Server) handleAdminDeleteOption(w http.ResponseWriter, r *http.Request) {
@@ -895,5 +895,5 @@ func (s *Server) handleAdminDeleteOption(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	http.Redirect(w, r, AdminCategoryURL(opt.CategoryID), http.StatusSeeOther)
+	http.Redirect(w, r, AdminCategoryURL(opt.CategoryID)+"#options", http.StatusSeeOther)
 }
