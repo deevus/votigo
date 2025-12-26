@@ -664,7 +664,7 @@ func (s *Server) handleAdminCategoryNew(w http.ResponseWriter, r *http.Request) 
 			maxRank = sql.NullInt64{Int64: mr, Valid: true}
 		}
 
-		_, err := s.queries.CreateCategory(r.Context(), db.CreateCategoryParams{
+		cat, err := s.queries.CreateCategory(r.Context(), db.CreateCategoryParams{
 			Name:        name,
 			VoteType:    voteType,
 			Status:      "draft",
@@ -677,7 +677,7 @@ func (s *Server) handleAdminCategoryNew(w http.ResponseWriter, r *http.Request) 
 			})
 			return
 		}
-		http.Redirect(w, r, AdminURL(), http.StatusSeeOther)
+		http.Redirect(w, r, AdminCategoryURL(cat.ID), http.StatusSeeOther)
 		return
 	}
 
