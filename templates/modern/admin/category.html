@@ -6,7 +6,7 @@
             ← Back to Dashboard
         </a>
         <h1 class="font-arcade text-lg text-arcade-green glow-green">
-            {{if .Category}}EDIT CATEGORY{{else}}NEW CATEGORY{{end}}
+            {{if .Category}}EDIT POLL{{else}}NEW POLL{{end}}
         </h1>
     </header>
 
@@ -16,13 +16,13 @@
     </div>
     {{end}}
 
-    <!-- Category form -->
+    <!-- Poll form -->
     <div class="arcade-border bg-arcade-panel p-6 space-y-6">
         <form method="POST" class="space-y-6">
             <div class="grid gap-6 md:grid-cols-2">
                 <div>
                     <label class="block text-xs text-neutral-400 mb-2 uppercase tracking-wide">
-                        Category Name
+                        Poll Name
                     </label>
                     <input type="text" name="name"
                            value="{{if .Category}}{{.Category.Name}}{{end}}"

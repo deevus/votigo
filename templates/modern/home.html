@@ -3,13 +3,13 @@
     <!-- Header -->
     <header class="text-center py-8">
         <h1 class="font-arcade text-2xl text-arcade-green glow-green mb-3">
-            PALM'S ARCADE
+            PALMS ARCADE
         </h1>
         <p class="text-neutral-500 text-sm">Cast your votes below</p>
     </header>
 
     {{if .Categories}}
-    <!-- Category list -->
+    <!-- Poll list -->
     <div class="space-y-3">
         {{range .Categories}}
         <a href="/vote/{{.ID}}"

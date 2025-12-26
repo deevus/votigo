@@ -38,7 +38,7 @@ Votigo is a server-rendered voting web app designed to work on ancient browsers 
 main.go                 # Kong CLI entry point
 cmd/
   root.go              # CLI struct definitions and AfterApply hook
-  category.go          # Category list/create commands
+  poll.go              # Poll list/create commands
   option.go            # Option add/list/remove commands
   lifecycle.go         # open/close commands
   results.go           # Results display command
@@ -60,8 +60,8 @@ templates/
   results.html         # Results display
   error.html           # Error page
   admin/
-    dashboard.html     # Admin category list
-    category.html      # Create/edit category with options
+    dashboard.html     # Admin poll list
+    category.html      # Create/edit poll with options
 migrations/
   embed.go             # Migration embed.FS
   00001_initial_schema.sql  # Database schema with indexes

@@ -9,10 +9,10 @@ import (
 )
 
 func (c *OpenCmd) Run(ctx *Context) error {
-	// Check category exists
+	// Check poll exists
 	cat, err := ctx.Queries.GetCategory(context.Background(), c.CategoryID)
 	if err != nil {
-		return fmt.Errorf("category not found: %w", err)
+		return fmt.Errorf("poll not found: %w", err)
 	}
 
 	// Check has options
@@ -21,7 +21,7 @@ func (c *OpenCmd) Run(ctx *Context) error {
 		return err
 	}
 	if count == 0 {
-		return fmt.Errorf("cannot open category with no options")
+		return fmt.Errorf("cannot open poll with no options")
 	}
 
 	err = ctx.Queries.UpdateCategoryStatus(context.Background(), db.UpdateCategoryStatusParams{
@@ -39,7 +39,7 @@ func (c *OpenCmd) Run(ctx *Context) error {
 func (c *CloseCmd) Run(ctx *Context) error {
 	cat, err := ctx.Queries.GetCategory(context.Background(), c.CategoryID)
 	if err != nil {
-		return fmt.Errorf("category not found: %w", err)
+		return fmt.Errorf("poll not found: %w", err)
 	}
 
 	err = ctx.Queries.UpdateCategoryStatus(context.Background(), db.UpdateCategoryStatusParams{

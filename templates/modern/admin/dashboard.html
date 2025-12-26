@@ -6,16 +6,16 @@
             <h1 class="font-arcade text-lg text-arcade-green glow-green">
                 ADMIN
             </h1>
-            <p class="text-neutral-500 text-sm mt-1">Manage voting categories</p>
+            <p class="text-neutral-500 text-sm mt-1">Manage voting polls</p>
         </div>
         <a href="/admin/category/new"
            class="bg-arcade-green hover:bg-green-400 text-arcade-dark px-4 py-2 rounded text-sm font-medium transition-colors btn-arcade">
-            + New Category
+            + New Poll
         </a>
     </header>
 
     {{if .Categories}}
-    <!-- Categories table -->
+    <!-- Polls table -->
     <div class="arcade-border bg-arcade-panel overflow-hidden">
         <table class="w-full">
             <thead>
@@ -56,7 +56,7 @@
     <!-- Empty state -->
     <div class="arcade-border bg-arcade-panel/50 p-8 text-center">
         <div class="text-neutral-600 text-sm">
-            No categories yet
+            No polls yet
         </div>
         <div class="text-neutral-700 text-xs mt-2">
             Create one to get started

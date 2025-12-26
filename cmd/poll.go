@@ -1,4 +1,4 @@
-// cmd/category.go
+// cmd/poll.go
 package cmd
 
 import (
@@ -11,14 +11,14 @@ import (
 	"github.com/palm-arcade/votigo/internal/db"
 )
 
-func (c *CategoryListCmd) Run(ctx *Context) error {
+func (c *PollListCmd) Run(ctx *Context) error {
 	categories, err := ctx.Queries.ListCategories(context.Background())
 	if err != nil {
 		return err
 	}
 
 	if len(categories) == 0 {
-		fmt.Println("No categories found.")
+		fmt.Println("No polls found.")
 		return nil
 	}
 
@@ -32,7 +32,7 @@ func (c *CategoryListCmd) Run(ctx *Context) error {
 	return nil
 }
 
-func (c *CategoryCreateCmd) Run(ctx *Context) error {
+func (c *PollCreateCmd) Run(ctx *Context) error {
 	var maxRank sql.NullInt64
 	if c.Type == "ranked" {
 		maxRank = sql.NullInt64{Int64: int64(c.MaxRank), Valid: true}
@@ -49,6 +49,6 @@ func (c *CategoryCreateCmd) Run(ctx *Context) error {
 		return err
 	}
 
-	fmt.Printf("Created category #%d: %s (%s)\n", cat.ID, cat.Name, cat.VoteType)
+	fmt.Printf("Created poll #%d: %s (%s)\n", cat.ID, cat.Name, cat.VoteType)
 	return nil
 }

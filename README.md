@@ -1,6 +1,6 @@
 # Votigo
 
-A voting app for Palm's Arcade Retro LAN. Works on modern devices and ancient browsers (IE 6-7, Netscape).
+A voting app for Palms Arcade Retro LAN. Works on modern devices and ancient browsers (IE 6-7, Netscape).
 
 ## Quick Start
 
@@ -8,8 +8,8 @@ A voting app for Palm's Arcade Retro LAN. Works on modern devices and ancient br
 # Build
 go build -o votigo .
 
-# Create a category
-./votigo category create "Best Costume" --type single
+# Create a poll
+./votigo poll create "Best Costume" --type single
 
 # Add options
 ./votigo option add 1 "Player One"
@@ -34,13 +34,13 @@ Admin access: http://YOUR_IP:5000/admin (user: admin)
 ## Commands
 
 ```bash
-votigo category list              # List all categories
-votigo category create NAME       # Create category
-votigo option add CATEGORY_ID NAME
-votigo option list CATEGORY_ID
-votigo open CATEGORY_ID           # Open voting
-votigo close CATEGORY_ID          # Close voting
-votigo results CATEGORY_ID        # Show results
+votigo poll list                  # List all polls
+votigo poll create NAME           # Create poll
+votigo option add POLL_ID NAME
+votigo option list POLL_ID
+votigo open POLL_ID               # Open voting
+votigo close POLL_ID              # Close voting
+votigo results POLL_ID            # Show results
 votigo serve --port 5000 --admin-password PASS
 ```
 

@@ -12,10 +12,10 @@ import (
 )
 
 func (c *OptionAddCmd) Run(ctx *Context) error {
-	// Verify category exists
+	// Verify poll exists
 	cat, err := ctx.Queries.GetCategory(context.Background(), c.CategoryID)
 	if err != nil {
-		return fmt.Errorf("category not found: %w", err)
+		return fmt.Errorf("poll not found: %w", err)
 	}
 
 	// Get current count for sort_order
@@ -40,7 +40,7 @@ func (c *OptionAddCmd) Run(ctx *Context) error {
 func (c *OptionListCmd) Run(ctx *Context) error {
 	cat, err := ctx.Queries.GetCategory(context.Background(), c.CategoryID)
 	if err != nil {
-		return fmt.Errorf("category not found: %w", err)
+		return fmt.Errorf("poll not found: %w", err)
 	}
 
 	options, err := ctx.Queries.ListOptionsByCategory(context.Background(), c.CategoryID)

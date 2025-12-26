@@ -14,7 +14,7 @@ import (
 func (c *ResultsCmd) Run(ctx *Context) error {
 	cat, err := ctx.Queries.GetCategory(context.Background(), c.CategoryID)
 	if err != nil {
-		return fmt.Errorf("category not found: %w", err)
+		return fmt.Errorf("poll not found: %w", err)
 	}
 
 	voteCount, err := ctx.Queries.CountVotesByCategory(context.Background(), c.CategoryID)

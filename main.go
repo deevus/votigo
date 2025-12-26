@@ -10,7 +10,7 @@ func main() {
 	cmdCtx := &cmd.Context{}
 	ctx := kong.Parse(&cli,
 		kong.Name("votigo"),
-		kong.Description("Voting app for Palm's Arcade Retro LAN"),
+		kong.Description("Voting app for Palms Arcade Retro LAN"),
 		kong.UsageOnError(),
 		kong.Bind(cmdCtx),
 	)
