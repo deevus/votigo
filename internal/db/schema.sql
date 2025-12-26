@@ -1,11 +1,11 @@
--- NOTE: This file must be kept in sync with migrations/00001_initial_schema.sql
+-- NOTE: This file must be kept in sync with migrations/
 -- It is used by sqlc for code generation only.
 
 CREATE TABLE categories (
   id            INTEGER PRIMARY KEY,
   name          TEXT NOT NULL,
   vote_type     TEXT NOT NULL CHECK (vote_type IN ('single', 'ranked', 'approval')),
-  status        TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'open', 'closed')),
+  status        TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'open', 'closed', 'archived')),
   show_results  TEXT NOT NULL DEFAULT 'after_close' CHECK (show_results IN ('live', 'after_close')),
   max_rank      INTEGER,
   created_at    DATETIME DEFAULT CURRENT_TIMESTAMP
