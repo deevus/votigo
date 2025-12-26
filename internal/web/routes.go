@@ -47,8 +47,12 @@ func AdminURL() string {
 	return PathAdmin
 }
 
-func AdminCategoryURL(categoryID int64) string {
-	return fmt.Sprintf(PathAdminCategory, categoryID)
+func AdminCategoryURL(categoryID int64, anchor ...string) string {
+	url := fmt.Sprintf(PathAdminCategory, categoryID)
+	if len(anchor) > 0 && anchor[0] != "" {
+		url += "#" + anchor[0]
+	}
+	return url
 }
 
 func AdminCategoryNewURL() string {
