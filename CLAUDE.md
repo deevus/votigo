@@ -101,3 +101,7 @@ Template function `add` is available for arithmetic in templates (used for ranke
 3. Transaction: upsert vote record, delete old selections, insert new selections
 4. Nickname normalized to lowercase for duplicate detection
 5. Re-voting replaces previous vote (same nickname = same voter)
+
+## Development Workflow
+
+Development of Votigo may be using Jujutsu (`jj`) instead of Git. Check if `jj` is installed and if the repository is co-located.
