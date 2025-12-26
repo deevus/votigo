@@ -1,40 +1,64 @@
 {{define "content"}}
-<h1>Admin Dashboard</h1>
-
-<h2>Polls</h2>
-<p><a href="/admin/category/new">+ New Poll</a></p>
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 20px;">
+  <tr>
+    <td>
+      <h1 class="header-green">ADMIN</h1>
+      <p class="muted-text" style="margin: 5px 0 0 0;">Manage voting polls</p>
+    </td>
+    <td align="right">
+      <a href="/admin/category/new" class="btn">+ New Poll</a>
+    </td>
+  </tr>
+</table>
 
 {{if .Categories}}
 <table class="data">
   <tr>
-    <th>ID</th>
+    <th width="40">ID</th>
     <th>Name</th>
-    <th>Type</th>
-    <th>Status</th>
-    <th>Actions</th>
+    <th width="80">Type</th>
+    <th width="200" align="center">Status</th>
+    <th width="80" align="right">Actions</th>
   </tr>
   {{range .Categories}}
-  <tr>
-    <td>{{.ID}}</td>
+  <tr style="{{if eq .Status "archived"}}background-color: #f5f5f5;{{end}}">
+    <td><b>{{.ID}}</b></td>
     <td><a href="/admin/category/{{.ID}}">{{.Name}}</a></td>
-    <td>{{.VoteType}}</td>
-    <td>{{.Status}}</td>
-    <td>
+    <td style="text-transform: capitalize;">{{.VoteType}}</td>
+    <td align="center">
       {{if eq .Status "draft"}}
-      <form method="POST" action="/admin/category/{{.ID}}/open" style="display:inline">
-        <input type="submit" value="Open" class="btn">
+      <span class="badge-draft">DRAFT</span>
+      <form method="POST" action="/admin/category/{{.ID}}/open" style="display:inline;">
+        <input type="submit" value="Open" class="btn" style="padding: 4px 8px; font-size: 11px;">
       </form>
       {{else if eq .Status "open"}}
-      <form method="POST" action="/admin/category/{{.ID}}/close" style="display:inline">
-        <input type="submit" value="Close" class="btn">
+      <span class="badge-open">OPEN</span>
+      <form method="POST" action="/admin/category/{{.ID}}/close" style="display:inline;">
+        <input type="submit" value="Close" class="btn-red">
       </form>
+      {{else if eq .Status "closed"}}
+      <span class="badge-closed">CLOSED</span>
+      <form method="POST" action="/admin/category/{{.ID}}/archive" style="display:inline;">
+        <input type="submit" value="Archive" class="btn-gray">
+      </form>
+      {{else if eq .Status "archived"}}
+      <span class="badge-archived">ARCHIVED</span>
       {{end}}
-      <a href="/results/{{.ID}}">Results</a>
+    </td>
+    <td align="right">
+      <a href="/results/{{.ID}}" style="font-size: 11px;">Results</a>
     </td>
   </tr>
   {{end}}
 </table>
 {{else}}
-<p>No polls yet.</p>
+<table width="100%" cellpadding="20" cellspacing="0" border="0" class="empty-state">
+  <tr>
+    <td>
+      <p style="color: #999; margin: 0;">No polls yet</p>
+      <p class="muted-text-small" style="margin: 10px 0 0 0;">Create one to get started</p>
+    </td>
+  </tr>
+</table>
 {{end}}
 {{end}}
