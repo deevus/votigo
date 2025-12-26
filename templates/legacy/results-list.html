@@ -1,0 +1,40 @@
+{{define "content"}}
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 20px;">
+  <tr>
+    <td align="center">
+      <h1 class="header-green">RESULTS</h1>
+      <p class="muted-text" style="margin: 0 0 20px 0;">View voting results</p>
+    </td>
+  </tr>
+</table>
+
+{{if .Categories}}
+{{range .Categories}}
+<table class="data" style="margin-bottom: 8px;">
+  <tr>
+    <td width="60" class="badge-amber">
+      <b>{{.ID}}</b>
+    </td>
+    <td>
+      <b>{{.Name}}</b><br>
+      <span class="muted-text-small" style="text-transform: uppercase;">
+        {{.VoteType}} · {{if eq .Status "open"}}LIVE{{else}}FINAL{{end}}
+      </span>
+    </td>
+    <td width="100" align="right">
+      <a href="/results/{{.ID}}" class="btn-amber" style="font-size: 11px; padding: 6px 12px;">VIEW →</a>
+    </td>
+  </tr>
+</table>
+{{end}}
+{{else}}
+<table width="100%" cellpadding="20" cellspacing="0" border="0" class="empty-state">
+  <tr>
+    <td>
+      <p style="color: #999; margin: 0;">No results available yet</p>
+      <p class="muted-text-small" style="margin: 10px 0 0 0;">Check back after voting opens</p>
+    </td>
+  </tr>
+</table>
+{{end}}
+{{end}}
