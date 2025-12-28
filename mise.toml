@@ -1,6 +1,6 @@
 [tools]
 go = "latest"
-"ubi:tailwindlabs/tailwindcss" = "latest"
+"github:tailwindlabs/tailwindcss" = "latest"
 
 [tasks.css]
 run = "tailwindcss -i templates/modern/input.css -o static/css/styles.css --minify"
