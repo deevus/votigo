@@ -86,6 +86,12 @@
     </button>
     {{else if eq .Status "closed"}}
     <span class="badge-closed">Closed</span>
+    <button hx-post="/admin/category/{{.ID}}/reopen"
+            hx-target="#status-{{.ID}}"
+            hx-swap="innerHTML"
+            class="bg-arcade-green/20 hover:bg-arcade-green/30 text-arcade-green px-3 py-1 rounded text-xs transition-colors">
+        Reopen
+    </button>
     <button hx-post="/admin/category/{{.ID}}/archive"
             hx-target="#status-{{.ID}}"
             hx-swap="innerHTML"

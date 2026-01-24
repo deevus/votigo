@@ -53,3 +53,36 @@ func (c *CloseCmd) Run(ctx *Context) error {
 	fmt.Printf("Closed voting for: %s\n", cat.Name)
 	return nil
 }
+
+func (c *ReopenCmd) Run(ctx *Context) error {
+	// Check poll exists
+	cat, err := ctx.Queries.GetCategory(context.Background(), c.CategoryID)
+	if err != nil {
+		return fmt.Errorf("poll not found: %w", err)
+	}
+
+	// Check poll is closed
+	if cat.Status != "closed" {
+		return fmt.Errorf("cannot reopen poll: status is %q (must be closed)", cat.Status)
+	}
+
+	// Check has options
+	count, err := ctx.Queries.CountOptionsByCategory(context.Background(), c.CategoryID)
+	if err != nil {
+		return err
+	}
+	if count == 0 {
+		return fmt.Errorf("cannot reopen poll with no options")
+	}
+
+	err = ctx.Queries.UpdateCategoryStatus(context.Background(), db.UpdateCategoryStatusParams{
+		Status: "open",
+		ID:     c.CategoryID,
+	})
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Reopened voting for: %s\n", cat.Name)
+	return nil
+}

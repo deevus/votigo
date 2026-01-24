@@ -38,6 +38,9 @@
       </form>
       {{else if eq .Status "closed"}}
       <span class="badge-closed">CLOSED</span>
+      <form method="POST" action="/admin/category/{{.ID}}/reopen" style="display:inline;">
+        <input type="submit" value="Reopen" class="btn" style="padding: 4px 8px; font-size: 11px;">
+      </form>
       <form method="POST" action="/admin/category/{{.ID}}/archive" style="display:inline;">
         <input type="submit" value="Archive" class="btn-gray">
       </form>

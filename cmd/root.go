@@ -20,6 +20,7 @@ type CLI struct {
 	Option  OptionCmd  `cmd:"" help:"Manage poll options"`
 	Open    OpenCmd    `cmd:"" help:"Open voting for a poll"`
 	Close   CloseCmd   `cmd:"" help:"Close voting for a poll"`
+	Reopen  ReopenCmd  `cmd:"" help:"Reopen voting for a closed poll"`
 	Results ResultsCmd `cmd:"" help:"Show results for a poll"`
 }
 
@@ -65,6 +66,10 @@ type OpenCmd struct {
 
 type CloseCmd struct {
 	CategoryID int64 `arg:"" help:"Poll ID to close"`
+}
+
+type ReopenCmd struct {
+	CategoryID int64 `arg:"" help:"Poll ID to reopen"`
 }
 
 type ResultsCmd struct {

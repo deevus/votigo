@@ -638,6 +638,8 @@ func (s *Server) handleAdminCategory(w http.ResponseWriter, r *http.Request) {
 		s.handleAdminOpen(w, r, id)
 	case "close":
 		s.handleAdminClose(w, r, id)
+	case "reopen":
+		s.handleAdminReopen(w, r, id)
 	case "archive":
 		s.handleAdminArchive(w, r, id)
 	case "option":
@@ -789,6 +791,60 @@ func (s *Server) handleAdminClose(w http.ResponseWriter, r *http.Request, id int
 
 	s.queries.UpdateCategoryStatus(r.Context(), db.UpdateCategoryStatusParams{
 		Status: "closed",
+		ID:     id,
+	})
+
+	if s.isHTMX(r) {
+		cat, _ := s.queries.GetCategory(r.Context(), id)
+		s.renderPartial(w, "partials/status-badge.html", cat)
+		return
+	}
+
+	http.Redirect(w, r, AdminURL(), http.StatusSeeOther)
+}
+
+func (s *Server) handleAdminReopen(w http.ResponseWriter, r *http.Request, id int64) {
+	if r.Method != http.MethodPost {
+		http.NotFound(w, r)
+		return
+	}
+
+	cat, err := s.queries.GetCategory(r.Context(), id)
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	// Verify poll is closed
+	if cat.Status != "closed" {
+		if s.isHTMX(r) {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("Poll must be closed to reopen"))
+			return
+		}
+		http.Redirect(w, r, AdminURL(), http.StatusSeeOther)
+		return
+	}
+
+	// Validate poll has options
+	count, _ := s.queries.CountOptionsByCategory(r.Context(), id)
+	if count == 0 {
+		if s.isHTMX(r) {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("Add options first"))
+			return
+		}
+		options, _ := s.queries.ListOptionsByCategory(r.Context(), id)
+		s.render(w, "admin/category.html", map[string]any{
+			"Category": cat,
+			"Options":  options,
+			"Error":    "Cannot reopen poll: add at least one option first",
+		})
+		return
+	}
+
+	s.queries.UpdateCategoryStatus(r.Context(), db.UpdateCategoryStatusParams{
+		Status: "open",
 		ID:     id,
 	})
 
