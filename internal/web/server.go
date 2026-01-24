@@ -101,7 +101,8 @@ func NewServer(database *sql.DB, adminPassword string, uiMode UIMode) (*Server, 
 	}, nil
 }
 
-func (s *Server) Start(port int) error {
+// Handler returns the HTTP handler for testing purposes
+func (s *Server) Handler() http.Handler {
 	mux := http.NewServeMux()
 
 	// Static files (for modern UI)
@@ -118,9 +119,13 @@ func (s *Server) Start(port int) error {
 	mux.HandleFunc("/admin", s.handleAdmin)
 	mux.HandleFunc("/admin/", s.handleAdmin)
 
+	return mux
+}
+
+func (s *Server) Start(port int) error {
 	addr := ":" + strconv.Itoa(port)
 	log.Printf("Starting server on http://0.0.0.0%s", addr)
-	return http.ListenAndServe(addr, mux)
+	return http.ListenAndServe(addr, s.Handler())
 }
 
 func (s *Server) render(w http.ResponseWriter, name string, data any) {
